@@ -1,0 +1,109 @@
+
+
+Dataset: 
+1. "Kraskura_etal_perch_temp_size_ABT.csv" 
+Supplemental data to manuscript: “Body size and temperature affect metabolic and cardiac thermal tolerance in fish.” 
+
+Maximum heart rates measured under acute temperature change. 
+
+
+2. Authors: Krista Kraskura
+  Co-authors: Emily A. Hardison, and Erika J. Eliason. 
+  Organization: University of California, Santa Barbara
+  e-mail address: k.kraskura@gmail.com 
+  
+  
+3. Funding of this work: See funding statement of the original publication manuscript. 
+  
+  
+4. Timeframe
+  Begin date: April 2021
+  End date: October 2021
+  Data collection ongoing/completed: completed 
+
+5. Location of work:
+  University of California, Santa Barbara. Santa Barbara, CA 93106, USA. Eliason Lab space.
+Biological Sciences Building II. For species collection sites see dataset: "Collection_sites.csv". 
+  
+6. Taxonomic species or groups: Barred surfperch ; (Latin: Amphistichus argenteus)
+
+7. Methods: See materials and methods section of the original publication manuscript.  
+
+
+8. Data:
+
+Data Table "Kraskura_etal_perch_temp_size_ABT.csv" 
+
+	FishID; The unique identifier of each individual fish; n/a (character); n/a; n/a; n/a; 
+	bpm; beats per minute, maximum heart rate measurement estimated across 15 seconds at a given temperature, heart rate analyses were done in LabChar 8 software; beatsPerMinute (numeric); n/a; n/a; n/a; 
+	bpm.SD; standard deviation of 'bpm' measurement ; n/a (numeric); n/a; n/a; n/a; 
+	temp_mean; mean temperature during the heart rate measurement; degreeCelsius (numeric); n/a; n/a; n/a; n/a; 
+	Depth.cm; the depth of the fish (the widest distance between the dorsal and ventral portions of the fish) ; centimeter (numeric); n/a; n/a; "NA"; 
+	SL.cm; standard length of the fish (the distance between the tip of the snout and hypural bone); centimeter (numeric); n/a; n/a; "NA"; 
+	TL.cm	; total length of the fish (the distance between the tip of the snout and the tallest end of the tail or caudal fin); centimeter (numeric); n/a; n/a; "NA"; 
+	FL.cm	; fork length of the fish (the distance between the tip of the snout and fork of the tail or caudal fin); centimeter (numeric); n/a; n/a; "NA"; 
+	Tank; the identifier of the unique housing tank for the individual; n/a (character); n/a; n/a; n/a; n/a; 
+	mass.g; body mass of the fish at the time of test; grams (numeric); n/a; n/a; n/a; 
+	bpm_duration; the duration of the maximum hear rate measurement at a given temperature ; seconds (numeric); n/a; n/a; n/a;
+	temp.rate; the average rate of temperature increase during Arrhenius Breakpoint Temperature test; degreeCelsiusPerMinute (numeric); n/a; n/a; n/a;
+	heart.mass; the mass of individual fish's ventricle ; grams (numeric); n/a; n/a; n/a;
+	breakpoint_Cels; the estimated Arrhenius breakpoint temperature (temperature at which the linear increase of the maximum heart rate first starts to decline on log-log scale). Metric estimated using 'segmented' function with parametric bootstrap (in R package segmented); degreeCelsius (numeric); n/a; n/a; "NA";
+	breakpoint_bpm; the corresponding beats per minute at the breakpoint temperature; beatsPerMinute (numeric); n/a; n/a; "NA";
+	breakpoint_CIh; the upper bound of confidence interval of the estimated breakpoint temperature ; n/a (numeric); n/a; n/a; n/a;
+	breakpoint_CIl; the lower bound of confidence interval of the estimated breakpoint temperature ; n/a (numeric); n/a; n/a; n/a;
+	HRpeak; the highest maximum heart rate measured at any temperature; beatsPerMinute (numeric); n/a; n/a; n/a;
+	Tpeak; the temperature at which the highest maximum heart rate was recorded; degreeCelsius (numeric); n/a; n/a; n/a;
+	temp_ARRH; the temperature at which the heart beat first became irregular or arrhythmic; degreeCelsius (numeric); n/a; n/a; n/a;
+	time_ARRH; the relative time of the test when the first irregular heart beats were identified; minute (numeric); n/a; n/a; n/a;
+	TEMP; the degree temperature (rounded) for the maximum heart rate measurement, common across all individuals; degreeCelsius (numeric); n/a; n/a; n/a;
+	sizeClass; the estimated life stage of the individual, juveniles are less than 50 g in mass, and adults are assumed above 50 g; n/a (character); Juvenile  = assumed juvenile fish, Adult = assumed adult fish; n/a; "NA";
+	treatm; (same as TEMP, matching columns across datasets when considering treatments); degreeCelsius (numeric); n/a; n/a; n/a;
+ 
+	
+
+
+	
+Data Table: "Kraskura_etal_perch_temp_size_RESP.csv"
+
+	FishID; the unique identifier of each individual fish; n/a (character); n/a; n/a; n/a; 				
+	DateRespo; the date of the respirometry trial, all dates are in 2021; date (character); n/a; dd-mon (day, three letter month); n/a;
+	ExperimentID; the indicator for the group of test fish and the set of experiments; n/a (character); "spring" = fish collected in spring season, respirometry trials only, "summer-fall" = fish collected in late summer, with ABT experiments extending into fall season; n/a; n/a;
+	Tank; the identifier of the unique housing tank for the individual; n/a (character); n/a; n/a; n/a;
+	RespoID; the unique identifier of the respirometry chamber; n/a (character); n/a; n/a; n/a;
+	Resp.Vol.L; the volume of the respirometry chamber; liters (numeric); n/a; n/a; n/a;
+	sex; sex of the individual; n/a (character); n/a (character); "F" = female, "M" = male; "NA";
+	Mass.g; body mass of the fish at the time of test; grams (numeric); n/a; n/a; n/a; 
+	TL.cm	; total length of the fish (the distance between the tip of the snout and the tallest end of the tail or caudal fin); centimeter (numeric); n/a; n/a; "NA"; 
+	FL.cm	; fork length of the fish (the distance between the tip of the snout and fork of the tail or caudal fin); centimeter (numeric); n/a; n/a; "NA"; 
+	SL.cm; standard length of the fish (the distance between the tip of the snout and hypural bone); centimeter (numeric); n/a; n/a; "NA";
+	Depth.cm; the depth of the fish (the widest distance between the dorsal and ventral portions of the fish); centimeter (numeric); n/a; n/a; "NA"; 
+	Circumference.cm; the distance around the individual at the widest section (where the depth of the fish was measured); centiMeter (numeric); n/a; n/a; "NA";
+	filename; the name of the respirometry file, it serves as an additional unique identifier for the trial; n/a (character); n/a; n/a; n/a;
+	Ch; the channel describing the oxygen probe connected to the FireSting oxygen meter; n/a (character); "Ch1" = channel 1, "Ch2" = channel 2, etc. ; n/a; n/a;
+	BW; body mass of the fish at the time of test; kiloGrams (numeric); n/a; n/a; n/a; 
+	t_min; the lowest temperature recorded during the respirometry trial; degreeCelsius (numeric); n/a; n/a; n/a;
+	t_max; the highest temperature recorded during the respirometry trial; degreeCelsius (numeric); n/a; n/a; n/a;
+	t_mean; the average temperature recorded during the respirometry trial; degreeCelsius (numeric); n/a; n/a; n/a;
+	N_mo2; the number of quality oxygen uptake rate (metabolic rate) measurements collected overnight that were used to estimate resting metabolic rates; n/a (numeric); n/a; n/a; n/a;
+	rmr; estimated individual resting metabolic rate; miliGramsOxygenPerMinute (numeric); n/a; n/a; "NA"; 
+	mmrChase; estimated individual maximum metabolic rate, immediately following 3-minute chase and 1-minute air exposure protocol; miliGramsOxygenPerMinute (numeric); n/a; n/a; n/a; 
+	mmr; estimated individual maximum metabolic rate, recorded at any point of time during the overnight trial; miliGramsOxygenPerMinute (numeric); n/a; n/a; n/a; 
+	AS; absolute aerobic scope (AS = mmr - rmr); miliGramsOxygenPerMinute (numeric); n/a; n/a; n/a;
+	mmr_length_cycle; the duration of the MMR measurement; numeric (seconds), or integer; if "1" = the entire length of the measurement (> 3); n/a; n/a;
+	treatm; the acute temperature treatment; degreeCelsius (numeric); n/a; n/a; n/a;
+	origin; indicates whether the fish was collected from the wild or field, or was laboratory-born; n/a (character); "field" = field/ wild collected, "lab" = laboratory born; n/a; n/a; 
+	pregnant; indicates whether the female was pregnant or not, not applicable to males (off-season reproductive cycle); n/a (character); "P" = pregnant, "nP" = non-pregnant; n/a; n/a; 
+	sizeClass; the estimated life stage of the individual, juveniles are less than 50 g in mass, and adults are assumed above 50 g; n/a (character); "YOY" = assumed juvenile fish, "> YOY" = assumed adult fish; n/a; "NA";
+	FAS; factorial aerobic scope (FAS = mmr / rmr); unitless (numeric); n/a; n/a; "NA";
+
+
+10. Associates Articles: Journal of Experimental Biology (2022, submitted)
+
+11. Notes and Comments:
+
+
+
+
+
+
+
