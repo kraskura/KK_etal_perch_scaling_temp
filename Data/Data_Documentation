@@ -1,42 +1,69 @@
 
-
-Dataset: 
-1. "Kraskura_etal_perch_temp_size_ABT.csv" 
-Supplemental data to manuscript: “Body size and temperature affect metabolic and cardiac thermal tolerance in fish.” 
-
-Maximum heart rates measured under acute temperature change. 
+This Data_documentation.txt file was generated on 2022-October by Krista Kraskura
 
 
-2. Authors: Krista Kraskura
-  Co-authors: Emily A. Hardison, and Erika J. Eliason. 
-  Organization: University of California, Santa Barbara
-  e-mail address: k.kraskura@gmail.com 
+GENERAL INFORMATION: 
+1. Supplemental data to manuscript: “Body size and temperature affect metabolic and cardiac thermal tolerance in fish.” 
+
+
+2. Author Information
+	A. Principal Investigator Contact Information
+		Name: Dr. Erika Eliason
+		Institution: University of California, Santa Barbara
+		Email: eliason@ucsb.edu
+
+	B. Corresponding Author Contact Information
+		Name: Krista Kraskura
+		Institution: University of California, Santa Barbara
+		Email: k.kraskura@gmail.com 
+
+	C. Co-authors: Emily A. Hardison
+  
   
   
 3. Funding of this work: See funding statement of the original publication manuscript. 
   
   
 4. Timeframe
-  Begin date: April 2021
-  End date: October 2021
-  Data collection ongoing/completed: completed 
+  
+	Begin date: April 2021
+ 	End date: October 2021
+  	Data collection ongoing/completed: completed 
 
 5. Location of work:
-  University of California, Santa Barbara. Santa Barbara, CA 93106, USA. Eliason Lab space.
+
+University of California, Santa Barbara. Santa Barbara, CA 93106, USA. Eliason Lab space.
 Biological Sciences Building II. For species collection sites see dataset: "Collection_sites.csv". 
   
+
 6. Taxonomic species or groups: Barred surfperch ; (Latin: Amphistichus argenteus)
+
 
 7. Methods: See materials and methods section of the original publication manuscript.  
 
 
-8. Data:
+SHARING/ACCESS INFORMATION
+
+1. Licenses/restrictions placed on the data: N/A
+
+2. Links to publications that cite or use the data: N/A
+
+3. Links to other publicly accessible locations of the data: N/A
+
+4. Links/relationships to ancillary data sets: N/A
+
+5. Was data derived from another source? no
 
 
-Column name; Description; Unit; Code explanation; Date Format; Missing Value Code; 
+DATA-SPECIFIC INFORMATION
 
+DATA-SPECIFIC INFORMATION FOR: "Kraskura_etal_perch_temp_size_ABT.csv" 
 
-Data Table "Kraskura_etal_perch_temp_size_ABT.csv" 
+1. Number of variables: 25
+
+2. Number of cases/rows: 318
+
+3. Variable List:  Column name; Description; Unit; Code explanation; Date Format; Missing Value Code; 
 
 	FishID; The unique identifier of each individual fish; n/a (character); n/a; n/a; n/a; 
 	bpm; beats per minute, maximum heart rate measurement estimated across 15 seconds at a given temperature, heart rate analyses were done in LabChar 8 software; beatsPerMinute (numeric); n/a; n/a; n/a; 
@@ -68,6 +95,13 @@ Data Table "Kraskura_etal_perch_temp_size_ABT.csv"
 
 	
 Data Table: "Kraskura_etal_perch_temp_size_RESP.csv"
+
+1. Number of variables: 30
+
+2. Number of cases/rows: 239
+
+3. Variable List:  Column name; Description; Unit; Code explanation; Date Format; Missing Value Code; 
+
 
 	FishID; the unique identifier of each individual fish; n/a (character); n/a; n/a; n/a; 				
 	DateRespo; the date of the respirometry trial, all dates are in 2021; date (character); n/a; dd-mon (day, three letter month); n/a;
@@ -102,18 +136,25 @@ Data Table: "Kraskura_etal_perch_temp_size_RESP.csv"
 
 
 
-Data Table: "Kraskura_etal_perch_temp_size_CardTempTol.csv"
 
 
-FishID; the unique identifier of each individual fish; n/a (character); n/a; n/a; n/a; 				
-time_ARRH; the time in the trail at which the first irregular heart beat was recorded; minutes(numeric); n/a; n/a; "NA"; 				
-temp_ARRH; temperature at the first arrhythmic (irregular) heart beat; degreesCelsius (numeric); n/a; n/a; "NA"; 				
-Tpeak; temperature for the highest recorded individual heart beat ; degreesCelsius (numeric); n/a; n/a; n/a; 				
-HRpeak; the highest individual maximum heart rate recorded; beatsPerMinute (numeric); n/a; n/a; n/a; 				
-breakpoint_CIl; the lower bound of 95% confidence interval estimate for breakpoint temperature; 1000/degreeKelvin (numeric); n/a; n/a; "NA"; 				
-breakpoint_CIh; the upper bound of 95% confidence interval estimate for breakpoint temperature; 1000/degreeKelvin (numeric); n/a; n/a; "NA"; 
-breakpoint_bpm; the maximum heart rate at the breakpoint temperature; beatsPerMinute (numeric); n/a; n/a; "NA"; 
-breakpoint_Cels; temperature at the estimated cardiac Arrhenius Breakpoint; degreesCelsius (numeric); n/a; n/a; "NA"; 				
+DATA-SPECIFIC INFORMATION FOR: "Kraskura_etal_perch_temp_size_CardTempTol.csv"
+
+1. Number of variables: 22
+
+2. Number of cases/rows: 31
+
+3. Variable List:  Column name; Description; Unit; Code explanation; Date Format; Missing Value Code; 
+
+	FishID; the unique identifier of each individual fish; n/a (character); n/a; n/a; n/a; 				
+	time_ARRH; the time in the trail at which the first irregular heart beat was recorded; minutes(numeric); n/a; n/a; "NA"; 				
+	temp_ARRH; temperature at the first arrhythmic (irregular) heart beat; degreesCelsius (numeric); n/a; n/a; "NA"; 				
+	Tpeak; temperature for the highest recorded individual heart beat ; degreesCelsius (numeric); n/a; n/a; n/a; 				
+	HRpeak; the highest individual maximum heart rate recorded; beatsPerMinute (numeric); n/a; n/a; n/a; 				
+	breakpoint_CIl; the lower bound of 95% confidence interval estimate for breakpoint temperature; 1000/degreeKelvin (numeric); n/a; n/a; "NA"; 				
+	breakpoint_CIh; the upper bound of 95% confidence interval estimate for breakpoint temperature; 1000/degreeKelvin (numeric); n/a; n/a; "NA"; 
+	breakpoint_bpm; the maximum heart rate at the breakpoint temperature; beatsPerMinute (numeric); n/a; n/a; "NA"; 
+	breakpoint_Cels; temperature at the estimated cardiac Arrhenius Breakpoint; degreesCelsius (numeric); n/a; n/a; "NA"; 				
 	heart.mass; the mass of the ventricle; grams (numeric);  n/a; n/a; n/a; "NA"; 
 	temp.rate; the rate of temperature increase during the Arrhenius Temperature Test; 		degreesCelsiusPerMinute (numeric); n/a; n/a; n/a/; 
 	mass.g; body mass of the fish at the time of test; grams (numeric); n/a; n/a; n/a; 
@@ -129,9 +170,7 @@ breakpoint_Cels; temperature at the estimated cardiac Arrhenius Breakpoint; degr
 	SEX; sex of the individual; n/a (character); "F" = female, "M" = male; n/a; "NA";
 
 
-
-
-10. Associates Articles: Journal of Experimental Biology (2022, submitted)
+10. Associates Articles: Journal of Experimental Biology (submitted Oct 2022)
 
 11. Notes and Comments:
 
