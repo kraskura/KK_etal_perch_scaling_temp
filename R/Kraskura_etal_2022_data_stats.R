@@ -79,7 +79,7 @@ data = data %>%
 data.abt = data.abt %>% 
   mutate(across(all_of(c("FishID", "treatm", "sizeClass")), factor))
 data.abtID = data.abtID %>% 
-  mutate(across(all_of(c("FishID", "sizeClass", "origin", "sex")), factor))
+  mutate(across(all_of(c("FishID", "sizeClass", "origin")), factor))
 
 # 1.2. temperature specific datasets (all fish)
 data12<-data[data$treatm=="12",]
@@ -1452,4 +1452,78 @@ cowplot::plot_grid(MMRcomp1, MMRcomp2, align = "hv",
                    label_y = c(0.95, 0.95)) %>% 
 ggsave(filename = paste( "./Figures/FigS1_MMRs",Sys.Date(),".png",sep=""), width = 6, height = 3)
 
+# 10. Summaries ----
+
+# mean diff between TARR and TPEAK
+summary(data.abtID$temp_ARRH - data.abtID$Tpeak, na.rm = T)
+
+
+# cardiac thermal tolerance indices
+means.heartID<-data.abtID %>% 
+  dplyr:::summarise(min.PEAKfhmax = min(HRpeak, na.rm = T),
+                    max.PEAKfhmax = max(HRpeak, na.rm = T),
+                    mean.PEAKfhmax = mean(HRpeak, na.rm = T),
+                    sd.PEAKfhmax = sd(HRpeak, na.rm = T),
+                    n.PEAKfhmax = length(HRpeak)- sum(is.na(HRpeak)),
+                    
+                    min.breakpoint_Cels = min(breakpoint_Cels, na.rm = T),
+                    max.breakpoint_Cels = max(breakpoint_Cels, na.rm = T),
+                    mean.breakpoint_Cels = mean(breakpoint_Cels, na.rm = T),
+                    sd.breakpoint_Cels = sd(breakpoint_Cels, na.rm = T),
+                    n.breakpoint_Cels = length(breakpoint_Cels)- sum(is.na(breakpoint_Cels)),
+                    
+                    min.Tpeak = min(Tpeak, na.rm = T),
+                    max.Tpeak = max(Tpeak, na.rm = T),
+                    mean.Tpeak = mean(Tpeak, na.rm = T),
+                    sd.Tpeak = sd(Tpeak, na.rm = T),
+                    n.Tpeak = length(Tpeak)- sum(is.na(Tpeak)),
+                    
+                    min.temp_ARRH = min(temp_ARRH, na.rm = T),
+                    max.temp_ARRH = max(temp_ARRH, na.rm = T),
+                    mean.temp_ARRH = mean(temp_ARRH, na.rm = T),
+                    sd.temp_ARRH = sd(temp_ARRH, na.rm = T),
+                    n.temp_ARRH = length(temp_ARRH)- sum(is.na(temp_ARRH)),
+                    
+                    min.BW = min(BW, na.rm = T),
+                    max.BW = max(BW, na.rm = T),
+                    mean.BW = mean(BW, na.rm = T),
+                    sd.BW = sd(BW, na.rm = T),
+                    n.BW = length(BW)- sum(is.na(BW)))
+
+
+means.heartID.SizeClass<-data.abtID %>% 
+  group_by(sizeClass) %>% 
+  dplyr:::summarise(min.PEAKfhmax = min(HRpeak, na.rm = T),
+                    max.PEAKfhmax = max(HRpeak, na.rm = T),
+                    mean.PEAKfhmax = mean(HRpeak, na.rm = T),
+                    sd.PEAKfhmax = sd(HRpeak, na.rm = T),
+                    n.PEAKfhmax = length(HRpeak)- sum(is.na(HRpeak)),
+                    
+                    min.breakpoint_Cels = min(breakpoint_Cels, na.rm = T),
+                    max.breakpoint_Cels = max(breakpoint_Cels, na.rm = T),
+                    mean.breakpoint_Cels = mean(breakpoint_Cels, na.rm = T),
+                    sd.breakpoint_Cels = sd(breakpoint_Cels, na.rm = T),
+                    n.breakpoint_Cels = length(breakpoint_Cels)- sum(is.na(breakpoint_Cels)),
+                    
+                    min.Tpeak = min(Tpeak, na.rm = T),
+                    max.Tpeak = max(Tpeak, na.rm = T),
+                    mean.Tpeak = mean(Tpeak, na.rm = T),
+                    sd.Tpeak = sd(Tpeak, na.rm = T),
+                    n.Tpeak = length(Tpeak)- sum(is.na(Tpeak)),
+                    
+                    min.temp_ARRH = min(temp_ARRH, na.rm = T),
+                    max.temp_ARRH = max(temp_ARRH, na.rm = T),
+                    mean.temp_ARRH = mean(temp_ARRH, na.rm = T),
+                    sd.temp_ARRH = sd(temp_ARRH, na.rm = T),
+                    n.temp_ARRH = length(temp_ARRH)- sum(is.na(temp_ARRH)),
+                    
+                    min.BW = min(BW, na.rm = T),
+                    max.BW = max(BW, na.rm = T),
+                    mean.BW = mean(BW, na.rm = T),
+                    sd.BW = sd(BW, na.rm = T),
+                    n.BW = length(BW)- sum(is.na(BW)))
+
+mean(data.abtID[data.abtID$sizeClass == "YOY", "breakpoint_Cels"], na.rm = T) - mean(data.abtID[data.abtID$sizeClass == "> YOY", "breakpoint_Cels"], na.rm =T)
+mean(data.abtID[data.abtID$sizeClass == "YOY", "Tpeak"]) - mean(data.abtID[data.abtID$sizeClass == "> YOY", "Tpeak"], na.rm =T)
+mean(data.abtID[data.abtID$sizeClass == "YOY", "temp_ARRH"]) - mean(data.abtID[data.abtID$sizeClass == "> YOY", "temp_ARRH"], na.rm =T)
 

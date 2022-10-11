@@ -32,19 +32,23 @@ Biological Sciences Building II. For species collection sites see dataset: "Coll
 
 8. Data:
 
+
+Column name; Description; Unit; Code explanation; Date Format; Missing Value Code; 
+
+
 Data Table "Kraskura_etal_perch_temp_size_ABT.csv" 
 
 	FishID; The unique identifier of each individual fish; n/a (character); n/a; n/a; n/a; 
 	bpm; beats per minute, maximum heart rate measurement estimated across 15 seconds at a given temperature, heart rate analyses were done in LabChar 8 software; beatsPerMinute (numeric); n/a; n/a; n/a; 
-	bpm.SD; standard deviation of 'bpm' measurement ; n/a (numeric); n/a; n/a; n/a; 
-	temp_mean; mean temperature during the heart rate measurement; degreeCelsius (numeric); n/a; n/a; n/a; n/a; 
+	bpm.SD; standard deviation of 'bpm' measurement; n/a (numeric); n/a; n/a; n/a; 
+	temp_mean; mean temperature during the heart rate measurement; degreeCelsius (numeric); n/a; n/a; n/a; 
 	Depth.cm; the depth of the fish (the widest distance between the dorsal and ventral portions of the fish) ; centimeter (numeric); n/a; n/a; "NA"; 
 	SL.cm; standard length of the fish (the distance between the tip of the snout and hypural bone); centimeter (numeric); n/a; n/a; "NA"; 
 	TL.cm	; total length of the fish (the distance between the tip of the snout and the tallest end of the tail or caudal fin); centimeter (numeric); n/a; n/a; "NA"; 
 	FL.cm	; fork length of the fish (the distance between the tip of the snout and fork of the tail or caudal fin); centimeter (numeric); n/a; n/a; "NA"; 
-	Tank; the identifier of the unique housing tank for the individual; n/a (character); n/a; n/a; n/a; n/a; 
+	Tank; the identifier of the unique housing tank for the individual; n/a (character); n/a; n/a; n/a; 
 	mass.g; body mass of the fish at the time of test; grams (numeric); n/a; n/a; n/a; 
-	bpm_duration; the duration of the maximum hear rate measurement at a given temperature ; seconds (numeric); n/a; n/a; n/a;
+	bpm_duration; the duration of the maximum hear rate measurement at a given temperature ; seconds (numeric); n/a; n/a; n/a; 
 	temp.rate; the average rate of temperature increase during Arrhenius Breakpoint Temperature test; degreeCelsiusPerMinute (numeric); n/a; n/a; n/a;
 	heart.mass; the mass of individual fish's ventricle ; grams (numeric); n/a; n/a; n/a;
 	breakpoint_Cels; the estimated Arrhenius breakpoint temperature (temperature at which the linear increase of the maximum heart rate first starts to decline on log-log scale). Metric estimated using 'segmented' function with parametric bootstrap (in R package segmented); degreeCelsius (numeric); n/a; n/a; "NA";
@@ -67,11 +71,11 @@ Data Table: "Kraskura_etal_perch_temp_size_RESP.csv"
 
 	FishID; the unique identifier of each individual fish; n/a (character); n/a; n/a; n/a; 				
 	DateRespo; the date of the respirometry trial, all dates are in 2021; date (character); n/a; dd-mon (day, three letter month); n/a;
-	ExperimentID; the indicator for the group of test fish and the set of experiments; n/a (character); "spring" = fish collected in spring season, respirometry trials only, "summer-fall" = fish collected in late summer, with ABT experiments extending into fall season; n/a; n/a;
+	ExperimentID; the indicator for the group of test fish and the set of experiments; n/a (character); "spring" = fish collected in spring season, respirometry trials only, "summer-fall" = fish collected in late summer, with heart rate experiments extending into a fall season; n/a; n/a;
 	Tank; the identifier of the unique housing tank for the individual; n/a (character); n/a; n/a; n/a;
 	RespoID; the unique identifier of the respirometry chamber; n/a (character); n/a; n/a; n/a;
 	Resp.Vol.L; the volume of the respirometry chamber; liters (numeric); n/a; n/a; n/a;
-	sex; sex of the individual; n/a (character); n/a (character); "F" = female, "M" = male; "NA";
+	sex; sex of the individual; n/a (character); "F" = female, "M" = male; n/a; "NA";
 	Mass.g; body mass of the fish at the time of test; grams (numeric); n/a; n/a; n/a; 
 	TL.cm	; total length of the fish (the distance between the tip of the snout and the tallest end of the tail or caudal fin); centimeter (numeric); n/a; n/a; "NA"; 
 	FL.cm	; fork length of the fish (the distance between the tip of the snout and fork of the tail or caudal fin); centimeter (numeric); n/a; n/a; "NA"; 
@@ -95,6 +99,36 @@ Data Table: "Kraskura_etal_perch_temp_size_RESP.csv"
 	pregnant; indicates whether the female was pregnant or not, not applicable to males (off-season reproductive cycle); n/a (character); "P" = pregnant, "nP" = non-pregnant; n/a; n/a; 
 	sizeClass; the estimated life stage of the individual, juveniles are less than 50 g in mass, and adults are assumed above 50 g; n/a (character); "YOY" = assumed juvenile fish, "> YOY" = assumed adult fish; n/a; "NA";
 	FAS; factorial aerobic scope (FAS = mmr / rmr); unitless (numeric); n/a; n/a; "NA";
+
+
+
+Data Table: "Kraskura_etal_perch_temp_size_CardTempTol.csv"
+
+
+FishID; the unique identifier of each individual fish; n/a (character); n/a; n/a; n/a; 				
+time_ARRH; the time in the trail at which the first irregular heart beat was recorded; minutes(numeric); n/a; n/a; "NA"; 				
+temp_ARRH; temperature at the first arrhythmic (irregular) heart beat; degreesCelsius (numeric); n/a; n/a; "NA"; 				
+Tpeak; temperature for the highest recorded individual heart beat ; degreesCelsius (numeric); n/a; n/a; n/a; 				
+HRpeak; the highest individual maximum heart rate recorded; beatsPerMinute (numeric); n/a; n/a; n/a; 				
+breakpoint_CIl; the lower bound of 95% confidence interval estimate for breakpoint temperature; 1000/degreeKelvin (numeric); n/a; n/a; "NA"; 				
+breakpoint_CIh; the upper bound of 95% confidence interval estimate for breakpoint temperature; 1000/degreeKelvin (numeric); n/a; n/a; "NA"; 
+breakpoint_bpm; the maximum heart rate at the breakpoint temperature; beatsPerMinute (numeric); n/a; n/a; "NA"; 
+breakpoint_Cels; temperature at the estimated cardiac Arrhenius Breakpoint; degreesCelsius (numeric); n/a; n/a; "NA"; 				
+	heart.mass; the mass of the ventricle; grams (numeric);  n/a; n/a; n/a; "NA"; 
+	temp.rate; the rate of temperature increase during the Arrhenius Temperature Test; 		degreesCelsiusPerMinute (numeric); n/a; n/a; n/a/; 
+	mass.g; body mass of the fish at the time of test; grams (numeric); n/a; n/a; n/a; 
+	Tank; the identifier of the unique housing tank for the individual; n/a (character); n/a; n/a; n/a;
+	Depth.cm; the depth of the fish (the widest distance between the dorsal and ventral portions of the fish); centimeter (numeric); n/a; n/a; "NA"; 
+	SL.cm; standard length of the fish (the distance between the tip of the snout and hypural bone); centimeter (numeric); n/a; n/a; "NA";
+	FL.cm	; fork length of the fish (the distance between the tip of the snout and fork of the tail or caudal fin); centimeter (numeric); n/a; n/a; "NA"; 
+	TL.cm	; total length of the fish (the distance between the tip of the snout and the tallest end of the tail or caudal fin); centimeter (numeric); n/a; n/a; "NA"; 
+	BW; body mass of the fish at the time of test; kiloGrams (numeric); n/a; n/a; n/a; 
+	origin; indicates whether the fish was collected from the wild or field, or was laboratory-born; n/a (character); "field" = field/ wild collected, "lab" = laboratory born; n/a; n/a;  
+	sizeClass; the estimated life stage of the individual, juveniles are less than 50 g in mass, and adults are assumed above 50 g; n/a (character); "YOY" = assumed juvenile fish, "> YOY" = assumed adult fish; n/a; "NA";
+	RVM; relative ventricular mass (heart mass (kg) / body mass (kg) * 100%) ; percentGram (numeric); n/a; n/a; "NA";
+	SEX; sex of the individual; n/a (character); "F" = female, "M" = male; n/a; "NA";
+
+
 
 
 10. Associates Articles: Journal of Experimental Biology (2022, submitted)
