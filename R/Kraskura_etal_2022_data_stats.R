@@ -1120,6 +1120,15 @@ plot.rmr.lmer<-ggplot(data=data.rmr.pred, aes(y=exp(rmr_pred), x=as.numeric(as.c
   scale_x_continuous(breaks = c(12, 14, 16,18,20, 22)) +
   scale_fill_manual(values = c(cols.4))+
   scale_color_manual(values = c(cols.4))+
+  annotate(geom = "text", x = 12, y = 0.49, label = "a", size = 4)+
+  annotate(geom = "text", x = 16, y = 0.49, label = "b", size = 4)+
+  annotate(geom = "text", x = 20, y = 0.49, label = "c", size = 4)+
+  annotate(geom = "text", x = 22, y = 0.49, label = "d", size = 4)+
+  annotate(geom = "text", x = 12, y = 0.28, label = "n = 66", size = 3.2)+
+  annotate(geom = "text", x = 16, y = 0.28, label = "n = 74", size = 3.2)+
+  annotate(geom = "text", x = 20, y = 0.28, label = "n = 66", size = 3.2)+
+  annotate(geom = "text", x = 22, y = 0.28, label = "n = 27", size = 3.2)+
+  annotate(geom = "text", x = 21, y = 0.8, label = "*origin: p<0.001", size = 3.2)+
   ylim(0,4.1)+
   theme_classic()
 ggformat(print =T, plot.rmr.lmer, y_title = expression(RMR~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
@@ -1138,6 +1147,15 @@ plot.fas.lmer<-ggplot(data=data.fas.pred, aes(y=exp(fas_pred), x=as.numeric(as.c
   scale_fill_manual(values = c(cols.4))+
   scale_x_continuous(breaks = c(12, 14, 16,18,20, 22)) +
   scale_color_manual(values = c(cols.4))+
+  annotate(geom = "text", x = 12, y = 1.15, label = "a", size = 4)+
+  annotate(geom = "text", x = 16, y = 1.15, label = "b", size = 4)+
+  annotate(geom = "text", x = 20, y = 1.15, label = "bc", size = 4)+
+  annotate(geom = "text", x = 22, y = 1.15, label = "cd", size = 4)+
+  annotate(geom = "text", x = 12, y = 1.05, label = "n = 66", size = 3.2)+
+  annotate(geom = "text", x = 16, y = 1.05, label = "n = 74", size = 3.2)+
+  annotate(geom = "text", x = 20, y = 1.05, label = "n = 66", size = 3.2)+
+  annotate(geom = "text", x = 22, y = 1.05, label = "n = 27", size = 3.2)+
+  annotate(geom = "text", x = 21, y = 3, label = "*origin: p=0.005", size = 3.2)+
   ylim(1,3.1)+
   theme_classic()
 ggformat(plot.fas.lmer, y_title = "FAS (MMR / RMR)", x_title = "Temperature ºC", size_text = 15)
@@ -1156,6 +1174,14 @@ plot.AS.lmer<-ggplot(data=data.as.pred, mapping = aes(y=exp(as_pred), x=as.numer
   scale_color_manual(values = c(cols.4))+
   scale_x_continuous(breaks = c(12, 14, 16,18,20, 22)) +
   theme_classic()+
+  annotate(geom = "text", x = 12, y = 0.3, label = "a", size = 4)+
+  annotate(geom = "text", x = 16, y = 0.3, label = "ab", size = 4)+
+  annotate(geom = "text", x = 20, y = 0.3, label = "c", size = 4)+
+  annotate(geom = "text", x = 22, y = 0.3, label = "cbd", size = 4)+
+  annotate(geom = "text", x = 12, y = 0.09, label = "n = 66", size = 3.2)+
+  annotate(geom = "text", x = 16, y = 0.09, label = "n = 74", size = 3.2)+
+  annotate(geom = "text", x = 20, y = 0.09, label = "n = 66", size = 3.2)+
+  annotate(geom = "text", x = 22, y = 0.09, label = "n = 27", size = 3.2)+
   ylim(0,4.1)
 ggformat(plot.AS.lmer, y_title = expression(AAS~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
 
@@ -1171,6 +1197,14 @@ plot.mmr.lmer<-ggplot(data=data.mmr.pred, aes(y=exp(mmr_pred), x=as.numeric(as.c
   scale_fill_manual(values = c(cols.4))+
   scale_color_manual(values = c(cols.4))+
   scale_x_continuous(breaks = c(12, 14, 16,18,20, 22)) +
+  annotate(geom = "text", x = 12, y = 0.6, label = "a", size = 4)+
+  annotate(geom = "text", x = 16, y = 0.6, label = "b", size = 4)+
+  annotate(geom = "text", x = 20, y = 0.6, label = "c", size = 4)+
+  annotate(geom = "text", x = 22, y = 0.6, label = "cd", size = 4)+
+  annotate(geom = "text", x = 12, y = 0.3, label = "n = 66", size = 3.2)+
+  annotate(geom = "text", x = 16, y = 0.3, label = "n = 76", size = 3.2)+
+  annotate(geom = "text", x = 20, y = 0.3, label = "n = 68", size = 3.2)+
+  annotate(geom = "text", x = 22, y = 0.3, label = "n = 28", size = 3.2)+
   ylim(0,6)+
   theme_classic()
 ggformat(plot.mmr.lmer, y_title = expression(MMR~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
@@ -1398,14 +1432,14 @@ cowplot::plot_grid(thesis2A, thesis2B, align = "hv",
                    labels = c("A", "B"), 
                    label_x = c(0.16, 0.16), 
                    label_y = c(0.9, 0.9)) %>% 
-ggsave(filename = paste( "./Figures/Fig2_AB",Sys.Date(),".png",sep=""), width = 8, height = 4)
+ggsave(filename = paste( "./Figures/Fig3_AB",Sys.Date(),".png",sep=""), width = 8, height = 4)
 
 ## Save Fig 3 CDEF --------
 grid.arrange(grobs = list(thesis2C, thesis2D,thesis2E, thesis2F),
              ncol = 4, nrow =1, widths=c(1.08,1,1,1),
              bottom = textGrob(expression(italic(ln)~Body~mass~(kg)),rot = 0, gp = gpar(fontsize = 18)),
              left = textGrob(expression(italic(ln)~MR),rot = 90, gp = gpar(fontsize = 18))) %>% 
-ggsave(filename = paste( "./Figures/Fig2_CDEF",Sys.Date(),".png",sep=""), width = 9.5, height = 3)
+ggsave(filename = paste( "./Figures/Fig3_CDEF",Sys.Date(),".png",sep=""), width = 9.5, height = 3)
 
 ## Save Fig 4 ABCD ---------
 cowplot:::plot_grid(plot.size, plot.bpm.lmer, plot2, plot.abt.scale,
@@ -1413,13 +1447,13 @@ cowplot:::plot_grid(plot.size, plot.bpm.lmer, plot2, plot.abt.scale,
                     ncol =2, labels = "AUTO", align = "vh",
                     label_x = c(0.21, 0.21),
                     label_y = c(0.9, 0.9), label_size = 14) %>%
-ggsave(filename = paste( "./Figures/Fig3_ABCD",Sys.Date(),".png",sep=""),
+ggsave(filename = paste( "./Figures/Fig4_ABCD",Sys.Date(),".png",sep=""),
          width = 8, height = 7.8)
 
 ## Save Fig 5 ABCD ---------
 cowplot::plot_grid(tpeak2, temparrh2, tabt2, hrmax2, 
                    align = "hv", label_x = c(0.2, 0.2), label_y = c(0.9, 0.9),labels = "AUTO" ) %>% 
-ggsave(filename = paste( "./Figures/Fig6_ABCD",Sys.Date(),".png",sep=""), width = 8.2, height = 8.2)
+ggsave(filename = paste( "./Figures/Fig5_ABCD",Sys.Date(),".png",sep=""), width = 8.2, height = 8.2)
 
 ## Save Fig 6 ABCD ---------
 cowplot:::plot_grid(plot.mmr.lmer, plot.rmr.lmer, plot.AS.lmer, plot.fas.lmer,
@@ -1427,7 +1461,7 @@ cowplot:::plot_grid(plot.mmr.lmer, plot.rmr.lmer, plot.AS.lmer, plot.fas.lmer,
                     ncol =2, labels = "AUTO", align = "vh",
                     label_x = c(0.25, 0.25),
                     label_y = c(0.9, 0.9), label_size = 14) %>%
-ggsave(filename = paste( "./Figures/Fig4_ABCD",Sys.Date(),".png",sep=""),
+ggsave(filename = paste( "./Figures/Fig6_ABCD",Sys.Date(),".png",sep=""),
          width = 8.5, height = 7.8)
 
 ## Save Fig 7 ABCD -------
