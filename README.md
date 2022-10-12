@@ -2,6 +2,10 @@
 ### Datasets and code complementary to research study:
 **Body size and temperature affect metabolic and cardiac thermal tolerance in fish.**
 
+
+- [x] :exclamation: **Manuscript in review (Oct 2022)**
+
+
 *Authors:  Krista Kraskura<sup>1</sup>, Emily A. Hardison, and Erika J. Eliason*
 Department of Ecology, Evolution and Marine Biology, University of California, Santa Barbara
 <sup>1</sup>Data Curation and Formal analysis
