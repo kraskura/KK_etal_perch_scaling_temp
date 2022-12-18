@@ -7,6 +7,7 @@ library(ggpubr)
 library(grid)
 library(gridExtra)
 library(gtable)
+library(forcats)
 
 # Custom functions used in the script: -----
 
@@ -56,7 +57,7 @@ ggformat<-function(plot, title="", y_title, x_title, print=TRUE, size_text = 15)
   
 }
 
-# color pallete:
+# color pallet:
 cols.4<-c("#3596B5", "#49817B", "#CD6C95", "#A2416E")
 # dark:
 col.d<-c("#002640")
@@ -69,7 +70,9 @@ data<-read.csv("./Data/Kraskura_etal_perch_temp_size_RESP.csv")
 data.abt<-read.csv("./Data/Kraskura_etal_perch_temp_size_ABT.csv")
 data.abtID<-read.csv("./Data/Kraskura_etal_perch_temp_size_CardTempTol.csv")
 
-dir.create("./Figures", recursive = TRUE)
+if(!dir.exists("Figures")){
+  dir.create("./Figures", recursive = TRUE)
+}
 # convert needed columns to factor
 factor_cols.data = c("FishID", "ExperimentID", "treatm", "Tank", "RespoID", "sex", "Ch", "treatm", "origin", "sizeClass", "pregnant")
 data = data %>% 
@@ -126,9 +129,9 @@ BICdelta(BIC(regrmrS, regrmr, regrmrSO, regrmrO)) # missing sex on few fish, see
 BICdelta(BIC(regas, regasO, regasSO, regasS)) # missing sex on few fish, see dataset
 
 # residuals 
-plot(resid(regrmrO))
-plot(resid(regmmr))
-plot(resid(regas))
+hist(resid(regrmrO))
+hist(resid(regmmr))
+hist(resid(regas))
 
 summary(regrmrO)
 summary(regmmr)
@@ -168,10 +171,10 @@ BICdelta(BIC(disc.regrmrS, disc.regrmr, disc.regrmrSO, disc.regrmrO, disc.regrmr
 BICdelta(BIC(disc.regas, disc.regasO, disc.regasSO, disc.regasS))
 BICdelta(BIC(disc.regfas, disc.regfasO, disc.regfasSO, disc.regfasS, disc.regfas2))
 
-plot(resid(disc.regmmr))
-plot(resid(disc.regrmrO))
-plot(resid(disc.regas))
-plot(resid(disc.regfasO))
+hist(resid(disc.regmmr))
+hist(resid(disc.regrmrO))
+hist(resid(disc.regas))
+hist(resid(disc.regfasO))
 
 summary(disc.regmmr)
 summary(disc.regrmrO)
@@ -219,7 +222,7 @@ modbpm0<-lmer(log(bpm) ~  log(BW) + (1|FishID), data.abt, REML = F)
 
 BICdelta(BIC(modbpm, modbpm0, modbpm1))
 
-plot(resid(modbpm))
+hist(resid(modbpm))
 summary(modbpm)
 
 ## 2.5. lm beat per minute. temp specific scaling -----------
@@ -821,7 +824,7 @@ thesis2A<-ggformat(plot = (
     geom_point(data=data12, aes(y=log(mmr), x=log(BW)),  color="black", fill = cols.4[1], size=2, show.legend = F)+
     scale_shape_manual(values = c(21, 22))+
     theme_classic()+
-    ylim(-4, 2)+
+    ylim(-5, 2)+
     xlim(-6, 0)+
     geom_abline(slope = mmr.b, intercept = scaling.int.mmr, color = cols.4[1], lty="solid")+
     geom_abline(slope = mmr.b, intercept = scaling.int.mmr + fixef(disc.regmmr)[3], color = cols.4[2], lty="solid")+
@@ -838,7 +841,10 @@ thesis2A<-ggformat(plot = (
              parse = T, color = cols.4[3])+
     annotate(geom = "text",x = -5.6, y = 0.7, hjust = 0,
              label = deparse(bquote(~MMR == italic(ln) ~"("* .(round(as.numeric(scaling.int.mmr + fixef(disc.regmmr)[5]),2))*")"~ BM^.(round(as.numeric(mmr.b),2)))),
-             parse = T, color = cols.4[4])
+             parse = T, color = cols.4[4])+
+    annotate(geom = "text",x = -4, y = -4, hjust = 0,
+             label = paste("Size range: ", min(data$Mass.g), " to ", max(data$Mass.g), " g", sep =""),
+             color = "black")
 ),y_title = expression(italic(ln)~MMR), x_title = expression(italic(ln)~Body~mass~(kg)))
 
 thesis2B<-ggformat(plot = (
@@ -849,7 +855,7 @@ thesis2B<-ggformat(plot = (
     geom_point(data=data12, aes(y=log(rmr), x=log(BW)),  color="black", fill = cols.4[1], size=2, show.legend = F)+
     scale_shape_manual(values = c(21, 22))+
     theme_classic()+
-    ylim(-4, 2)+
+    ylim(-5, 2)+
     xlim(-6, 0)+
     geom_abline(slope = rmr.b, intercept = scaling.int.rmr, color = cols.4[1], lty="solid")+
     geom_abline(slope = rmr.b, intercept = scaling.int.rmr + fixef(disc.regrmr)[3], color = cols.4[2], lty="solid")+
@@ -876,74 +882,78 @@ thesis2B<-ggformat(plot = (
 thesis2C<-ggformat(
   plot = (
     ggplot(data=data12, aes(y=log(rmr), x=log(BW)))+
-      geom_point(pch=23, color=cols.4[1], fill = "white", size=2, alpha = 1)+
+      geom_point(pch=24, color=cols.4[1], fill = "white", size=2, alpha = 1)+
       geom_point(data = data12, mapping = (aes(y=log(mmr), x=log(BW))),  pch=21, color=cols.4[1], fill = "white", size=2, alpha = 1)+
-      geom_point(data = dataF12, mapping = (aes(y=log(rmr), x=log(BW))),  pch=23, color=cols.4[1], fill = cols.4[1], size=2, alpha = 1)+
+      geom_point(data = dataF12, mapping = (aes(y=log(rmr), x=log(BW))),  pch=24, color=cols.4[1], fill = cols.4[1], size=2, alpha = 1)+
       geom_point(data = dataF12, mapping = (aes(y=log(mmr), x=log(BW))),  pch=21, color=cols.4[1], fill = cols.4[1], size=2, alpha = 1)+
       theme_classic()+
       ylim(-4, 2)+
       xlim(-6, 1)+
       geom_abline(slope = slope12.rmr, intercept = int12.rmr, color = cols.4[1])+
       geom_abline(slope = slope12.mmr, intercept = int12.mmr, color = cols.4[1])+
-      annotate("text", x = -6, y = 1.6, hjust = 0, label = expression(bold(C)), size = 5, parse = T)+
+      annotate("text", x = -6, y = 1.6, hjust = 0, label = expression(bold(c)), size = 5, parse = T)+
       annotate("text", x = -0.75, y = -3.5, label = expression(12*degree*C), color = cols.4[1], size = 5)+
       annotate("text", x = -5.25, y = 1.6, hjust = 0, label = deparse(bquote(~italic(b)[MMR] ~"="~ .(round(as.numeric(slope12.mmr), 3)))), size = 4, parse = T)+
-      annotate("text", x = -5.25, y = 1, hjust = 0, label = deparse(bquote(~italic(b)[RMR] ~"="~ .(round(as.numeric(slope12.rmr), 3)))), size = 4, parse = T)
+      annotate("text", x = -5.25, y = 1, hjust = 0, label = deparse(bquote(~italic(b)[RMR] ~"="~ .(round(as.numeric(slope12.rmr), 3)))), size = 4, parse = T)+
+      annotate("text", x = -5.25, y = 0.4, hjust = 0, label = deparse(bquote(~italic(b)[AAS] ~"="~ .(round(as.numeric(slope12.as), 3)))), size = 4, parse = T)
   ), y_title = expression(italic(ln)~MR), x_title = expression(italic(ln)~Body~mass~(kg)), print = T)
 
 thesis2D<-ggformat(
   plot = (
     ggplot(data=data16, aes(y=log(rmr), x=log(BW)))+
-      geom_point(pch=23, color=cols.4[2], fill = "white", size=2, alpha = 1)+
+      geom_point(pch=24, color=cols.4[2], fill = "white", size=2, alpha = 1)+
       geom_point(data = data16, mapping = (aes(y=log(mmr), x=log(BW))),  pch=21, color=cols.4[2], fill = "white", size=2, alpha = 1)+
-      geom_point(data = dataF16, mapping = (aes(y=log(rmr), x=log(BW))),  pch=23, color=cols.4[2], fill = cols.4[2], size=2, alpha = 1)+
+      geom_point(data = dataF16, mapping = (aes(y=log(rmr), x=log(BW))),  pch=24, color=cols.4[2], fill = cols.4[2], size=2, alpha = 1)+
       geom_point(data = dataF16, mapping = (aes(y=log(mmr), x=log(BW))),  pch=21, color=cols.4[2], fill = cols.4[2], size=2, alpha = 1)+
       theme_classic()+
       ylim(-4, 2)+
       xlim(-6, 0)+
       geom_abline(slope = slope16.rmr, intercept = int16.rmr, color = cols.4[2])+
       geom_abline(slope = slope16.mmr, intercept = int16.mmr, color = cols.4[2])+
-      annotate("text", x = -6, y = 1.6, hjust = 0, label = expression(bold(D)), size = 5, parse = T)+
+      annotate("text", x = -6, y = 1.6, hjust = 0, label = expression(bold(d)), size = 5, parse = T)+
       annotate("text", x = -0.75, y = -3.5, label = expression(16*degree*C), color = cols.4[2], size = 5)+
       annotate("text", x = -5.25, y = 1.6, hjust = 0, label = deparse(bquote(~italic(b)[MMR] ~"="~ .(round(as.numeric(slope16.mmr), 3)))), size = 4, parse = T)+
-      annotate("text", x = -5.25, y = 1, hjust = 0, label = deparse(bquote(~italic(b)[RMR] ~"="~ .(round(as.numeric(slope16.rmr), 3)))), size = 4, parse = T)
-  ), y_title = expression(italic(ln)~MR), x_title = expression(italic(ln)~Body~mass~(kg)), print = F)
+      annotate("text", x = -5.25, y = 1, hjust = 0, label = deparse(bquote(~italic(b)[RMR] ~"="~ .(round(as.numeric(slope16.rmr), 3)))), size = 4, parse = T)+
+      annotate("text", x = -5.25, y = 0.4, hjust = 0, label = deparse(bquote(~italic(b)[AAS] ~"="~ .(round(as.numeric(slope16.as), 3)))), size = 4, parse = T)
+), y_title = expression(italic(ln)~MR), x_title = expression(italic(ln)~Body~mass~(kg)), print = F)
 
 
 thesis2E<-ggformat(
   plot = (
     ggplot(data=data20, aes(y=log(rmr), x=log(BW)))+
-      geom_point(pch=23, color=cols.4[3], fill = "white", size=2, alpha = 1)+
+      geom_point(pch=24, color=cols.4[3], fill = "white", size=2, alpha = 1)+
       geom_point(data = data20, mapping = (aes(y=log(mmr), x=log(BW))),  pch=21, color=cols.4[3], fill = "white", size=2, alpha = 1)+
-      geom_point(data = dataF20, mapping = (aes(y=log(rmr), x=log(BW))),  pch=23, color=cols.4[3], fill = cols.4[3], size=2, alpha = 1)+
+      geom_point(data = dataF20, mapping = (aes(y=log(rmr), x=log(BW))),  pch=24, color=cols.4[3], fill = cols.4[3], size=2, alpha = 1)+
       geom_point(data = dataF20, mapping = (aes(y=log(mmr), x=log(BW))),  pch=21, color=cols.4[3], fill = cols.4[3], size=2, alpha = 1)+
       theme_classic()+
       ylim(-4, 2)+
       xlim(-6, 0)+
       geom_abline(slope = slope20.rmr, intercept = int20.rmr, color = cols.4[3])+
       geom_abline(slope = slope20.mmr, intercept = int20.mmr, color = cols.4[3])+
-      annotate("text", x = -6, y = 1.6, hjust = 0, label = expression(bold(E)), size = 5, parse = T)+
+      annotate("text", x = -6, y = 1.6, hjust = 0, label = expression(bold(e)), size = 5, parse = T)+
       annotate("text", x = -0.75, y = -3.5, label = expression(20*degree*C), color = cols.4[3], size = 5)+
       annotate("text", x = -5.25, y = 1.6, hjust = 0, label = deparse(bquote(~italic(b)[MMR] ~"="~ .(round(as.numeric(slope20.mmr), 3)))), size = 4, parse = T)+
-      annotate("text", x = -5.25, y = 1, hjust = 0, label = deparse(bquote(~italic(b)[RMR] ~"="~ .(round(as.numeric(slope20.rmr), 3)))), size = 4, parse = T)
+      annotate("text", x = -5.25, y = 1, hjust = 0, label = deparse(bquote(~italic(b)[RMR] ~"="~ .(round(as.numeric(slope20.rmr), 3)))), size = 4, parse = T)+
+      annotate("text", x = -5.25, y = 0.4, hjust = 0, label = deparse(bquote(~italic(b)[AAS] ~"="~ .(round(as.numeric(slope20.as), 3)))), size = 4, parse = T)
   ), y_title = expression(italic(ln)~MR), x_title = expression(italic(ln)~Body~mass~(kg)), print = F)
 
 thesis2F<-ggformat(
   plot = (
     ggplot(data=data22, aes(y=log(rmr), x=log(BW)))+
-      geom_point(pch=23, color=cols.4[4], fill = "white", size=2, alpha = 1)+
+      geom_point(pch=24, color=cols.4[4], fill = "white", size=2, alpha = 1)+
       geom_point(data = data22, mapping = (aes(y=log(mmr), x=log(BW))),  pch=21, color=cols.4[4], fill = "white", size=2, alpha = 1)+
-      geom_point(data = dataF22, mapping = (aes(y=log(rmr), x=log(BW))),  pch=23, color=cols.4[4], fill = cols.4[4], size=2, alpha = 1)+
+      geom_point(data = dataF22, mapping = (aes(y=log(rmr), x=log(BW))),  pch=24, color=cols.4[4], fill = cols.4[4], size=2, alpha = 1)+
       geom_point(data = dataF22, mapping = (aes(y=log(mmr), x=log(BW))),  pch=21, color=cols.4[4], fill = cols.4[4], size=2, alpha = 1)+
       theme_classic()+
       ylim(-4, 2)+
       xlim(-6, 0)+
       geom_abline(slope = slope22.rmr, intercept = int22.rmr, color = cols.4[4])+
       geom_abline(slope = slope22.mmr, intercept = int22.mmr, color = cols.4[4])+
-      annotate("text", x = -6, y = 1.6, hjust = 0, label = expression(bold(F)), size = 5, parse = T)+
+      annotate("text", x = -6, y = 1.6, hjust = 0, label = expression(bold(f)), size = 5, parse = T)+
       annotate("text", x = -0.75, y = -3.5, label = expression(22*degree*C), color = cols.4[4], size = 5)+
       annotate("text", x = -5.25, y = 1.6, hjust = 0, label = deparse(bquote(~italic(b)[MMR] ~"="~ .(round(as.numeric(slope22.mmr), 3)))), size = 4, parse = T)+
-      annotate("text", x = -5.25, y = 1, hjust = 0, label = deparse(bquote(~italic(b)[RMR] ~"="~ .(round(as.numeric(slope22.rmr), 3)))), size = 4, parse = T)
+      annotate("text", x = -5.25, y = 1, hjust = 0, label = deparse(bquote(~italic(b)[RMR] ~"="~ .(round(as.numeric(slope22.rmr), 3)))), size = 4, parse = T)+
+      annotate("text", x = -5.25, y = 0.4, hjust = 0, label = deparse(bquote(~italic(b)[AAS] ~"="~ .(round(as.numeric(slope22.as), 3)))), size = 4, parse = T)
   ), y_title = expression(italic(ln)~MR), x_title = expression(italic(ln)~Body~mass~(kg)), print = F)
 
 thesis2C <- thesis2C + theme( axis.title.y = element_blank(), 
@@ -969,7 +979,10 @@ plot.size <- ggplot(data.abt, aes(x = temp_mean, y = bpm, group=FishID, size = m
   scale_fill_gradient(low = "#97AFB9", high = "#002D47", name = "kg")+
   scale_x_continuous(limits = c(14, 28), breaks = c(14, 16, 18, 20, 22, 24, 26, 28))+
   scale_y_continuous(limits = c(58, 180), breaks = c(60, 80, 100, 120, 140, 160))+
-  annotate("text", x = -4.2, y = 4.35, hjust = 0, label = deparse(bquote(~italic(b) ~"="~ .(round(as.numeric(hr16.b), 3)))), size = 4, parse = T, color = cols.4[2])
+  annotate("text", x = -4.2, y = 4.35, hjust = 0, label = deparse(bquote(~italic(b) ~"="~ .(round(as.numeric(hr16.b), 3)))), size = 4, parse = T, color = cols.4[2])+
+  annotate(geom = "text", x = 15.5, y = 175, hjust = 0,
+         label = paste("Size range: ", min(data.abt$mass.g), " to ", max(data.abt$mass.g), " g", sep =""),
+         color = "black")
 ggformat(plot.size, print = F, y_title = expression(italic(f)[Hmax]~(beats~min^-1)), x_title = expression(Temperature~degree*C), size_text = 15)
 
 plot.size<-plot.size+theme(legend.position = c(0.32, 0.81),
@@ -993,7 +1006,7 @@ plot.bpm.lmer<-ggplot()+
              show.legend = F, alpha = 1, size = 3, fill = cols.4[4], color = "black", pch=21, position = position_dodge(width = 0.4))+
   geom_point(pred.means.bpm1kg[pred.means.bpm1kg$treatm == "24",], mapping = aes(y=exp(prediction), x=treatm),
              show.legend = F, alpha = 1, size = 3, fill = "red", color = "black", pch=21, position = position_dodge(width = 0.4))+
-  annotate("text", x = 9, y = 75, fontface = "italic", label = "Mass-adjusted \n for 1kg fish")+
+  annotate("text", x = 9, y = 75, label = "Mass-normalized \n for 1kg fish")+
   scale_x_discrete( breaks = c("14", "16", "18", "20", "22", "24", "26", "28"))+
   theme_classic()
 ggformat(plot.bpm.lmer, y_title = expression(italic(f)[Hmax]~(beats~min^-1)), x_title = "Temperature ºC", size_text = 15)
@@ -1066,7 +1079,10 @@ tpeak2<-ggformat(
             annotate(geom = "text",x = -3.8, y = 3, hjust = 0,
                      label = deparse(bquote(~italic(ln)~T[PEAK] == italic(ln) ~"("* .(round(as.numeric(coef(mod.peak1)[1]),2))*")"~ BM^.(round(as.numeric(coef(mod.peak1)[2]),2)))),
                      parse = T, color = "black")+
-            annotate(geom = "text",x = -3.8, y = 2.96, hjust = 0,
+            annotate(geom = "text",x = 16, y = 167, hjust = 0,
+                    label = paste("Size range: ", min(data.abtID$mass.g), " to ", max(data.abtID$mass.g), " g", sep =""),
+                    color = "black")+
+            annotate(geom = "text",x = -3.8, y = 3.35, hjust = 0,
                      label = " n = 30", color = "black")+
             xlim(-6, -0.5)+
             ylim(2.89, 3.4)+
@@ -1082,7 +1098,7 @@ tabt2<-ggformat(
             annotate(geom = "text",x = -3.8, y = 3.35, hjust = 0,
                      label = deparse(bquote(~italic(ln)~T[AB] == italic(ln) ~"("* .(round(as.numeric(coef(mod.bpO)[1]),2))*")"~ BM^.(round(as.numeric(coef(mod.bpO)[2]),2)))),
                      parse = T, color = "black")+
-            annotate(geom = "text", x = -3.8, y = 3.31, hjust = 0, label = "*origin: p<0.05", size = 3)+
+            annotate(geom = "text", x = -3.8, y = 3.31, hjust = 0, label = "origin: p = 0.030", size = 3)+
             annotate(geom = "text",x = -3.8, y = 3.27, hjust = 0,
                      label = " n = 27", color = "black")+
             xlim(-6, -0.5)+
@@ -1116,10 +1132,11 @@ plot.rmr.lmer<-ggplot(data=data.rmr.pred, aes(y=exp(rmr_pred), x=as.numeric(as.c
   geom_errorbar(pred.means.rmr1kg, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE), group = factor(origin), x=as.numeric(as.character(treatm))), width = 0.2, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
   geom_point(pred.means.rmr1kg, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)), shape = origin, fill = factor(treatm), group=factor(origin), color = factor(treatm)),
              show.legend = F, alpha = 1, size = 4, color = "black", position = position_dodge(width = 0.4))+
-  scale_shape_manual(values = c(21,23))+
+  scale_shape_manual(values = c(21,1))+
   scale_x_continuous(breaks = c(12, 14, 16,18,20, 22)) +
   scale_fill_manual(values = c(cols.4))+
   scale_color_manual(values = c(cols.4))+
+  scale_linetype_manual(values = c(1,2))+
   annotate(geom = "text", x = 12, y = 0.49, label = "a", size = 4)+
   annotate(geom = "text", x = 16, y = 0.49, label = "b", size = 4)+
   annotate(geom = "text", x = 20, y = 0.49, label = "c", size = 4)+
@@ -1128,8 +1145,14 @@ plot.rmr.lmer<-ggplot(data=data.rmr.pred, aes(y=exp(rmr_pred), x=as.numeric(as.c
   annotate(geom = "text", x = 16, y = 0.28, label = "n = 74", size = 3.2)+
   annotate(geom = "text", x = 20, y = 0.28, label = "n = 66", size = 3.2)+
   annotate(geom = "text", x = 22, y = 0.28, label = "n = 27", size = 3.2)+
-  annotate(geom = "text", x = 21, y = 0.8, label = "*origin: p<0.001", size = 3.2)+
-  ylim(0,4.1)+
+  annotate(geom = "segment", x = 13, xend = 14, y = 3.5, yend = 3.5, colour = "black", linetype = 2, linewidth = 0.5)+
+  annotate(geom = "segment", x = 13, xend = 14, y = 3.85, yend = 3.85, colour = "black", linetype = 1, linewidth = 0.5)+
+  annotate("pointrange", x = 13.5, y = 3.5, ymin = 3.5, ymax = 3.5, colour = "black", pch = 1, size = 0.9, stroke = 0.6, linewidth = 0)+
+  annotate("pointrange", x = 13.5, y = 3.85, ymin = 3.85, ymax = 3.85, colour = "black", fill = "white", pch = 21, size = 0.9, stroke = 0.6, linewidth = 0)+
+  annotate(geom = "text", hjust = 0, x = 14.2, y = 3.85, label = "Wild-caugth", size = 4)+
+  annotate(geom = "text", hjust = 0, x = 14.2, y = 3.5, label = "Lab-born", size = 4)+
+  annotate(geom = "text", hjust = 0, x = 13, y = 3.2, label = expression("origin: p = 8.93e-4"), size = 3.2)+
+  scale_y_continuous(limits = c(0,4.1), breaks = c(0.5, 1.5, 2.5, 3.5)) +
   theme_classic()
 ggformat(print =T, plot.rmr.lmer, y_title = expression(RMR~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
 # plot.rmr.lmer<-plot.rmr.lmer+theme(legend.position = c(0.8, 0.2))
@@ -1143,10 +1166,12 @@ plot.fas.lmer<-ggplot(data=data.fas.pred, aes(y=exp(fas_pred), x=as.numeric(as.c
   geom_errorbar(pred.means.fas1kg, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE), group = factor(origin), x=as.numeric(as.character(treatm))), width = 0.2, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
   geom_point(pred.means.fas1kg, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)), shape = origin, fill = factor(treatm), group=factor(origin), color = factor(treatm)),
              show.legend = F, alpha = 1, size = 4, color = "black", position = position_dodge(width = 0.4))+
-  scale_shape_manual(values = c(21,23))+
+  scale_shape_manual(values = c(21,1))+
   scale_fill_manual(values = c(cols.4))+
   scale_x_continuous(breaks = c(12, 14, 16,18,20, 22)) +
+  scale_y_continuous(limits = c(1,3.2), breaks = c(1, 1.5, 2,2.5, 3)) +
   scale_color_manual(values = c(cols.4))+
+  scale_linetype_manual(values = c(1,2))+
   annotate(geom = "text", x = 12, y = 1.15, label = "a", size = 4)+
   annotate(geom = "text", x = 16, y = 1.15, label = "b", size = 4)+
   annotate(geom = "text", x = 20, y = 1.15, label = "bc", size = 4)+
@@ -1155,8 +1180,7 @@ plot.fas.lmer<-ggplot(data=data.fas.pred, aes(y=exp(fas_pred), x=as.numeric(as.c
   annotate(geom = "text", x = 16, y = 1.05, label = "n = 74", size = 3.2)+
   annotate(geom = "text", x = 20, y = 1.05, label = "n = 66", size = 3.2)+
   annotate(geom = "text", x = 22, y = 1.05, label = "n = 27", size = 3.2)+
-  annotate(geom = "text", x = 21, y = 3, label = "*origin: p=0.005", size = 3.2)+
-  ylim(1,3.1)+
+  annotate(geom = "text", x = 19, y = 3.1, label = "origin: p = 4.64e-3", size = 3.2)+
   theme_classic()
 ggformat(plot.fas.lmer, y_title = "FAS (MMR / RMR)", x_title = "Temperature ºC", size_text = 15)
 
@@ -1182,7 +1206,7 @@ plot.AS.lmer<-ggplot(data=data.as.pred, mapping = aes(y=exp(as_pred), x=as.numer
   annotate(geom = "text", x = 16, y = 0.09, label = "n = 74", size = 3.2)+
   annotate(geom = "text", x = 20, y = 0.09, label = "n = 66", size = 3.2)+
   annotate(geom = "text", x = 22, y = 0.09, label = "n = 27", size = 3.2)+
-  ylim(0,4.1)
+  scale_y_continuous(limits = c(0,4.1), breaks = c(0.5, 1.5, 2.5, 3.5)) 
 ggformat(plot.AS.lmer, y_title = expression(AAS~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
 
 plot.mmr.lmer<-ggplot(data=data.mmr.pred, aes(y=exp(mmr_pred), x=as.numeric(as.character(treatm)), fill = factor(treatm),color = factor(treatm)))+
@@ -1205,7 +1229,7 @@ plot.mmr.lmer<-ggplot(data=data.mmr.pred, aes(y=exp(mmr_pred), x=as.numeric(as.c
   annotate(geom = "text", x = 16, y = 0.3, label = "n = 76", size = 3.2)+
   annotate(geom = "text", x = 20, y = 0.3, label = "n = 68", size = 3.2)+
   annotate(geom = "text", x = 22, y = 0.3, label = "n = 28", size = 3.2)+
-  ylim(0,6)+
+  scale_y_continuous(limits = c(0,6), breaks = c(0.5, 1.5, 2.5, 3.5, 4.5, 5.5 )) +
   theme_classic()
 ggformat(plot.mmr.lmer, y_title = expression(MMR~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
 
@@ -1218,7 +1242,7 @@ p1<-ggformat(plot=
                ggplot(fig7data.top, aes(x = as.numeric(slopes),  y = orderPerf, fill = color,  size = factor(size), shape = factor(size)))+
                geom_errorbarh(mapping = aes(xmin = CI.L, xmax = CI.H,),
                               color = "black", size = 0.6, height = 0.1)+
-               xlim(0.66, 1)+
+               xlim(0.66, 1.08)+
                geom_point( color = "grey30", show.legend = F)+
                scale_size_manual(values = c(3,4))+
                geom_text(size=4, color = "black", nudge_y = 0.3,  data =  fig7data.top[fig7data.top$size== "B",] ,
@@ -1230,6 +1254,9 @@ p1<-ggformat(plot=
                                            expression(MMR),
                                            expression(VM),
                                            expression(AAS)))+
+              annotate(geom = "text",x = 0.9, y = 1.6, hjust = 0, label = paste("Size ranges: ", sep =""),color = "black")+
+              annotate(geom = "text",x = 0.9, y = 1.3, hjust = 0, label = paste("MR: ", min(data$Mass.g), " - ", max(data$Mass.g), " g", sep =""),color = "black")+
+              annotate(geom = "text",x = 0.9, y = 1.0, hjust = 0, label = paste("ABT: ", min(data.abtID$mass.g), " - ", max(data.abtID$mass.g), " g", sep =""),color = "black")+
                theme_classic()
              , y_title = "", x_title = "Scaling Slopes", size_text = 13)
 p1<-p1+theme(plot.margin = margin(0,1,-0.5,-0.3, "cm"))
@@ -1320,7 +1347,7 @@ p3<-
   annotate("text", x = 11, y = 1.65, hjust = 1, label = expression(bold(paste("AAS"))),  size = 4, parse = T)+
   annotate("text", x = 11, y = 2.2, hjust = 1, label = expression(bold(paste("FAS"))),  size = 4, parse = T)+
   annotate("text", x = 11, y = 1.2, hjust = 1, label = expression(bold(RMR)), size = 4, parse = T)+
-  annotate("text", x = 21, y = 3, hjust = 1, label = expression(bold(italic(f)[Hmax])), size = 4, parse = T)+
+  annotate("text", x = 21, y = 3.2, hjust = 1, label = expression(bold(italic(f)[Hmax])), size = 4, parse = T)+
   theme_classic()
 ggformat(p3, x_title = expression(Temperature~(degree*C)),
          y_title = expression(MR~(mgO[2]~min^-1~kg^-1)), size_text = 13, print = T)
@@ -1429,7 +1456,7 @@ plotheart1<-ggformat(
 ## Save Fig 3 AB --------
 cowplot::plot_grid(thesis2A, thesis2B, align = "hv",
                    nrow = 1, ncol = 2,
-                   labels = c("A", "B"), 
+                   labels = c("a", "b"), 
                    label_x = c(0.16, 0.16), 
                    label_y = c(0.9, 0.9)) %>% 
 ggsave(filename = paste( "./Figures/Fig3_AB",Sys.Date(),".png",sep=""), width = 8, height = 4)
@@ -1444,53 +1471,69 @@ ggsave(filename = paste( "./Figures/Fig3_CDEF",Sys.Date(),".png",sep=""), width 
 ## Save Fig 4 ABCD ---------
 cowplot:::plot_grid(plot.size, plot.bpm.lmer, plot2, plot.abt.scale,
                     nrow = 2, 
-                    ncol =2, labels = "AUTO", align = "vh",
-                    label_x = c(0.21, 0.21),
+                    ncol =2, labels = "auto", align = "vh",
+                    label_x = c(0.22, 0.22),
                     label_y = c(0.9, 0.9), label_size = 14) %>%
 ggsave(filename = paste( "./Figures/Fig4_ABCD",Sys.Date(),".png",sep=""),
-         width = 8, height = 7.8)
+         width = 8, height = 8)
 
 ## Save Fig 5 ABCD ---------
 cowplot::plot_grid(tpeak2, temparrh2, tabt2, hrmax2, 
-                   align = "hv", label_x = c(0.2, 0.2), label_y = c(0.9, 0.9),labels = "AUTO" ) %>% 
-ggsave(filename = paste( "./Figures/Fig5_ABCD",Sys.Date(),".png",sep=""), width = 8.2, height = 8.2)
+                   align = "hv",
+                   label_x = c(0.22, 0.22),
+                   label_y = c(0.9, 0.9),
+                   labels = "auto" ) %>% 
+ggsave(filename = paste( "./Figures/Fig5_ABCD",Sys.Date(),".png",sep=""),
+       width = 8, height = 8)
 
 ## Save Fig 6 ABCD ---------
 cowplot:::plot_grid(plot.mmr.lmer, plot.rmr.lmer, plot.AS.lmer, plot.fas.lmer,
                     nrow = 2, 
-                    ncol =2, labels = "AUTO", align = "vh",
-                    label_x = c(0.25, 0.25),
-                    label_y = c(0.9, 0.9), label_size = 14) %>%
+                    ncol =2, labels = "auto", align = "vh",
+                    label_x = c(0.22, 0.22),
+                    label_y = c(0.9, 0.9)) %>%
 ggsave(filename = paste( "./Figures/Fig6_ABCD",Sys.Date(),".png",sep=""),
-         width = 8.5, height = 7.8)
+         width = 8, height = 8)
 
 ## Save Fig 7 ABCD -------
-cowplot:::plot_grid(p1, p2, p3, p3.q10, nrow =2, ncol=2, labels = "AUTO", align = "hv",label_x = c(0.2, 0.2), label_y = c(0.9, 0.9)) %>% 
+cowplot:::plot_grid(p1, p2, p3, p3.q10, nrow =2, ncol=2,
+                    labels = "auto",
+                    align = "hv",
+                    label_x = c(0.2, 0.2),
+                    label_y = c(0.9, 0.9)) %>% 
   ggsave(filename = paste( "./Figures/Fig7_FINAL",Sys.Date(),".png",sep=""), width = 10, height = 8)
 
 
 ## Save Fig S3 -----
 
-ggsave(plot =plotheart1, filename = paste( "./Figures/Fig5_",Sys.Date(),"_rvmscale", Sys.Date(),".png",sep=""),
+ggsave(plot =plotheart1,
+       filename = paste( "./Figures/Fig5_",Sys.Date(),"_rvmscale", Sys.Date(),".png",sep=""),
        height = 3.5, width = 3.5)
 
 ## Save Fig S2 --------
 cowplot::plot_grid(tpeak2S, temparrh2S, tabt2S, hrmax2S, 
-                   align = "hv", label_x = c(0.2, 0.2), label_y = c(0.9, 0.9),labels = "AUTO" ) %>% 
-ggsave(filename = paste( "./Figures/Fig6SUPPL_ABCD",Sys.Date(),".png",sep=""), width = 8.2, height = 8.2)
+                   align = "hv",
+                   label_x = c(0.22, 0.22),
+                   label_y = c(0.9, 0.9),
+                   labels = "auto" ) %>% 
+ggsave(filename = paste( "./Figures/Fig6SUPPL_ABCD",Sys.Date(),".png",sep=""), width = 8, height = 8)
 
 ## Save Fig S1 ----------
 cowplot::plot_grid(MMRcomp1, MMRcomp2, align = "hv",
                    nrow = 1, ncol = 2,
-                   labels = c("A", "B"), 
+                   labels = c("a", "b"), 
                    label_y = c(0.95, 0.95)) %>% 
-ggsave(filename = paste( "./Figures/FigS1_MMRs",Sys.Date(),".png",sep=""), width = 6, height = 3)
+ggsave(filename = paste( "./Figures/FigS1_MMRs",Sys.Date(),".png",sep=""), width = 8, height = 4)
 
 # 10. Summaries ----
 
 # mean diff between TARR and TPEAK
 summary(data.abtID$temp_ARRH - data.abtID$Tpeak, na.rm = T)
 
+# data summary for size (field vs lab)
+summary(data[data$origin == "field", ])
+length(levels(factor(data[data$origin == "field", "FishID"])))
+length(levels(factor(data[data$origin == "lab", "FishID"])))
 
 # cardiac thermal tolerance indices
 means.heartID<-data.abtID %>% 
