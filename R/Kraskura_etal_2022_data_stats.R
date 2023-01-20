@@ -8,6 +8,7 @@ library(grid)
 library(gridExtra)
 library(gtable)
 library(forcats)
+library(tidyverse)
 library(tidyr)
 
 # Custom functions used in the script: -----
@@ -125,8 +126,8 @@ regasS<-lmer(log(AS) ~ log(BW) + t_mean + sex + (1|FishID), data.as.mod, REML = 
 regas<-lmer(log(AS) ~ log(BW) + t_mean + (1|FishID), data.as.mod, REML = F)
 regasX<-lmer(log(AS) ~ log(BW) * t_mean + (1|FishID), data.as.mod, REML = F)
 
-BICdelta(BIC(regmmrS, regmmr, regmmrSO, regmmrO, regmmr2)) # missing sex on few fish, see dataset
-BICdelta(BIC(regrmrS, regrmr, regrmrSO, regrmrO, regrmr2)) # missing sex on few fish, see dataset
+BICdelta(BIC(regmmrS, regmmr, regmmrSO, regmmrO, regmmrX)) # missing sex on few fish, see dataset
+BICdelta(BIC(regrmrS, regrmr, regrmrSO, regrmrO, regrmrX)) # missing sex on few fish, see dataset
 BICdelta(BIC(regas, regasO, regasSO, regasS, regas2)) # missing sex on few fish, see dataset
 
 # Best models:
@@ -283,7 +284,7 @@ summary(modmrcor1)
 
 ## 2.8. heart size scaling (main/supplemental material manuscript)---------
 heart.scale <- lm(log(heart.mass/1000)~log(BW), data = data.abtID)
-plot(heart.scale)
+# plot(heart.scale)
 summary(heart.scale)
 
 
@@ -893,11 +894,11 @@ manuscrMainC<-ggformat(plot = (
 ),y_title = expression(italic(ln)~AAS), x_title = expression(italic(ln)~Body~mass~(kg)))
 
 
-## Figure 4 ABCD ------
+## Figure 4 AB (not used:CD) ------
 plot.size <- ggplot(data.abt, aes(x = temp_mean, y = bpm, group=FishID, size = mass.g/1000, color = mass.g/1000, fill = mass.g/1000))+
   geom_errorbar(aes(ymin = bpm - bpm.SD, ymax = bpm + bpm.SD, group=FishID), size=0.5)+
   geom_point(pch=21, size=1)+
-  geom_line(lwd=0.5)+
+  geom_line(linewidth=0.5)+
   annotate("segment",  x = 16, xend = 16, color=cols.4[2], y = 60, yend = 70, size=1.5, arrow = arrow( angle = 40, length = unit(0.25,"cm")))+
   annotate("segment",  x = 20, xend = 20, color=cols.4[3], y = 60, yend = 70, size=1.5, arrow = arrow( angle = 40, length = unit(0.25,"cm")))+
   annotate("segment",  x = 22, xend = 22, color=cols.4[4], y = 60, yend = 70, size=1.5, arrow = arrow( angle = 40, length = unit(0.25,"cm")))+
@@ -987,7 +988,7 @@ tpeak2<-ggformat(
             annotate(geom = "text",x = 16, y = 167, hjust = 0,
                     label = paste("Size range: ", min(data.abtID$mass.g), " to ", max(data.abtID$mass.g), " g", sep =""),
                     color = "black")+
-            annotate(geom = "text",x = -3.8, y = 3.35, hjust = 0,
+            annotate(geom = "text",x = -3.8, y = 2.96, hjust = 0,
                      label = " n = 30", color = "black")+
             xlim(-6, -0.5)+
             ylim(2.89, 3.4)+
@@ -1169,7 +1170,7 @@ p1<-ggformat(plot=
               annotate(geom = "text",x = 0.9, y = 1.0, hjust = 0, label = paste("ABT: ", min(data.abtID$mass.g), " - ", max(data.abtID$mass.g), " g", sep =""),color = "black")+
                theme_classic()
              , y_title = "", x_title = "Scaling Slopes", size_text = 13)
-p1<-p1+theme(plot.margin = margin(0,1,-0.5,-0.3, "cm"))
+p1<-p1+theme(plot.margin = margin(0,0.1,0,-0.3, "cm"))
 
 
 p2<-ggformat(plot=
@@ -1198,7 +1199,7 @@ p2<-ggformat(plot=
                                            expression(FAS)))+
                theme_classic()
              , y_title = "", x_title = "Scaling Slopes", size_text = 13)
-p2<-p2+theme(plot.margin = margin(0,1,1,-0.5, "cm"))
+p2<-p2+theme(plot.margin = margin(0,0.1,0,-0.3, "cm"))
 
 p3.q10<-
   ggplot(plot.final.mr, mapping = aes(x = treatm, y=q10, group=factor(p),shape = factor(p), 
@@ -1223,7 +1224,8 @@ p3.q10<-
   theme_classic()
 ggformat(p3.q10, x_title = expression(Acute~treatments~(degree*C)),
          y_title = expression(Q[10]), size_text = 13, print = T)
-# 
+p3.q10<-p3.q10+theme(plot.margin = margin(-0.5,0.1,0,0, "cm"))
+
 
 
 p3<-
@@ -1245,7 +1247,8 @@ p3<-
   scale_color_manual(values = c(cols.4))+
   scale_shape_manual(values = c(22,  24, 23, 25))+
   scale_x_continuous(breaks = c( 12, 16, 20, 22, 24), limits= c(7, 28))+
-  scale_y_continuous(sec.axis = sec_axis( trans=~.*25, name=expression(italic(f)[Hmax]~(beats~min^-1))))+
+  scale_y_continuous(sec.axis = sec_axis( trans=~.*25, name=expression(italic(f)[Hmax]~(beats~min^-1)), breaks = seq(75,125, 10)),
+                     breaks = seq(1, 5, 0.5))+
   # geom_errorbar(pred.means.bpm1kg, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE)/100, x=treatm),
   #               width = 0.5, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
   geom_point(pred.means.bpm1kg, mapping = aes(y=exp(prediction)/25, x=as.numeric(as.character(treatm))),
@@ -1267,6 +1270,7 @@ p3<-
   theme_classic()
 ggformat(p3, x_title = expression(Temperature~(degree*C)),
          y_title = expression(MR~(mgO[2]~min^-1~kg^-1)), size_text = 13, print = T)
+p3<-p3+theme(plot.margin = margin(-0.5,0.1,0,0, "cm"))
 
 
 ## Supplementary Figure 1 ABCD------
@@ -1487,18 +1491,18 @@ cowplot::plot_grid(manuscrMainA, manuscrMainB, align = "hv",
                    nrow = 1, ncol = 2,
                    labels = c("a", "b"), 
                    label_x = c(0.16, 0.16), 
-                   label_y = c(0.9, 0.9)) %>% 
+                   label_y = c(0.9)) %>% 
 ggsave(filename = paste( "./Figures/Fig3_AB_",Sys.Date(),".png",sep=""), width = 8, height = 4)
 
 ## Save Fig 4 ABC ---------
-cowplot:::plot_grid(plot.size, plot.bpm.lmer, plot2, 
-                    nrow = 1, 
-                    ncol =3, labels = "auto", align = "vh",
-                    label_x = c(0.22, 0.22, 0.22),
+cowplot:::plot_grid(plot.size, plot2, 
+                    nrow = 1, ncol =2,
+                    labels = "auto", align = "vh",
+                    label_x = c(0.22, 0.22),
                     label_y = c(0.9),
                     label_size = 14) %>%
-ggsave(filename = paste( "./Figures/Fig4_ABC_",Sys.Date(),".png",sep=""),
-         width = 12, height = 4)
+ggsave(filename = paste( "./Figures/Fig4_AB_",Sys.Date(),".png",sep=""),
+         width = 8, height = 4)
 
 
 ## Save Fig 5 ABCD ---------
@@ -1523,7 +1527,7 @@ ggsave(filename = paste( "./Figures/Fig6_ABCD_",Sys.Date(),".png",sep=""),
 cowplot:::plot_grid(p1, p2, p3, p3.q10, nrow = 2, ncol = 2,
                     labels = "auto",
                     align = "hv",
-                    label_x = c(0.2, 0.2),
+                    label_x = c(0.18, 0.18),
                     label_y = c(0.9, 0.9)) %>% 
 ggsave(filename = paste( "./Figures/Fig7_",Sys.Date(),".png",sep=""), width = 10, height = 8)
 
