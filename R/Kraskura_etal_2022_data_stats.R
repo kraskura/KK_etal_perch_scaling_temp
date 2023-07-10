@@ -10,6 +10,8 @@ library(gtable)
 library(forcats)
 library(tidyverse)
 library(tidyr)
+library(here)
+library(bayesplot)
 
 # Custom functions used in the script: -----
 
@@ -67,7 +69,6 @@ col.d<-c("#002640")
 
 
 # 1. Setup and read in data -----
-
 data<-read.csv("./Data/Kraskura_etal_perch_temp_size_RESP.csv")
 data.abt<-read.csv("./Data/Kraskura_etal_perch_temp_size_ABT.csv")
 data.abtID<-read.csv("./Data/Kraskura_etal_perch_temp_size_CardTempTol.csv")
@@ -128,7 +129,7 @@ regasX<-lmer(log(AS) ~ log(BW) * t_mean + (1|FishID), data.as.mod, REML = F)
 
 BICdelta(BIC(regmmrS, regmmr, regmmrSO, regmmrO, regmmrX)) # missing sex on few fish, see dataset
 BICdelta(BIC(regrmrS, regrmr, regrmrSO, regrmrO, regrmrX)) # missing sex on few fish, see dataset
-BICdelta(BIC(regas, regasO, regasSO, regasS, regas2)) # missing sex on few fish, see dataset
+BICdelta(BIC(regas, regasO, regasSO, regasS)) # missing sex on few fish, see dataset
 
 # Best models:
 # residuals 
@@ -292,31 +293,26 @@ summary(heart.scale)
 
 # 3.Mass normalized metabolism, ANOVA/PostHocs and estimated model means ----------
 ## 3.1. LMER reference grid metabolism data with discrete temperature -----------
-pred.means.mmr1kg<-as.data.frame(summary(ref_grid(disc.regmmr, at = list(BW= 1),calc = c(n = ".wgt."))))
-pred.means.rmr1kg<-as.data.frame(summary(ref_grid(disc.regrmrO, at = list(BW= 1),calc = c(n = ".wgt."))))
-pred.means.as1kg<-as.data.frame(summary(ref_grid(disc.regas, at = list(BW= 1),calc = c(n = ".wgt."))))
-pred.means.fas1kg<-as.data.frame(summary(ref_grid(disc.regfasO, at = list(BW= 1),calc = c(n = ".wgt."))))
-pred.means.bpm1kg<-as.data.frame(summary(ref_grid(modbpm, at = list(BW = 1),calc = c(n = ".wgt."))))
+# edits made July 9, 2023, size standardise to 65 g, the general average for all experiments
 
-# check estimated marginal means: BW = 1 is for body mass 1 kg 
-# emmeans(disc.regmmr, c("treatm"), at = list(BW = 1), calc = c(n = ".wgt."),) # n =8
-# emmeans(disc.regrmrO, c("treatm","origin"), at = list(BW = 1), calc = c(n = ".wgt.")) # n =8
-# emmeans(disc.regas, c("treatm"), at = list(BW = 1), calc = c(n = ".wgt.")) # n =4
-# emmeans(disc.regfasO, c("treatm","origin"), at = list(BW = 1), calc = c(n = ".wgt.")) # n=8
-# emmeans(modbpm, c("treatm"), at = list(BW = 1), calc = c(n = ".wgt."))  # 10 g fish 
+pred.means.mmr65g<-as.data.frame(summary(ref_grid(disc.regmmr, at = list(BW= 0.065),calc = c(n = ".wgt."))))
+pred.means.rmr65g<-as.data.frame(summary(ref_grid(disc.regrmrO, at = list(BW= 0.065),calc = c(n = ".wgt."))))
+pred.means.as65g<-as.data.frame(summary(ref_grid(disc.regas, at = list(BW= 0.065),calc = c(n = ".wgt."))))
+pred.means.fas65g<-as.data.frame(summary(ref_grid(disc.regfasO, at = list(BW= 0.065),calc = c(n = ".wgt."))))
+pred.means.bpm65g<-as.data.frame(summary(ref_grid(modbpm, at = list(BW = 0.065),calc = c(n = ".wgt."))))
 
 
 ## 3.2. new data grid with each individual, predict values -------
 data.rmr.pred <- data.rmr.mod[, c("FishID", "origin", "treatm", "BW", "rmr", "mmr", "AS", "FAS")]
-data.rmr.pred$BW <- 1
+data.rmr.pred$BW <- 0.065
 data.mmr.pred <- data.mmr.mod[, c("FishID", "origin", "treatm", "BW", "rmr", "mmr", "AS", "FAS")]
-data.mmr.pred$BW <- 1
+data.mmr.pred$BW <- 0.065
 data.as.pred <- data.as.mod[, c("FishID", "origin", "treatm", "BW", "rmr", "mmr", "AS", "FAS")]
-data.as.pred$BW <- 1
+data.as.pred$BW <- 0.065
 data.fas.pred <- data.fas.mod[, c("FishID", "origin", "treatm", "BW", "rmr", "mmr", "AS", "FAS")]
-data.fas.pred$BW <- 1
+data.fas.pred$BW <- 0.065
 data.bpm.pred <- data.abt[, c("FishID",  "treatm", "BW", "bpm")]
-data.bpm.pred$BW <- 1
+data.bpm.pred$BW <- 0.065
 # pred 2 used to get only temp specific data
 # data.bpm.pred2 <-as.data.frame(expand.grid(treatm = c("16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28"),
 #                                            BW = c(0.01, 0.35)))
@@ -359,99 +355,99 @@ data.bpm.pred$q10_bpm <- NA
 ## 3.3. Q10 calculations: use estimated means ---------
 # https://www.physiologyweb.com/calculators/q10_calculator.html
 
-pred.means.bpm1kg$q10<-NA
-for(i in 2:nrow(pred.means.bpm1kg)){
+pred.means.bpm65g$q10<-NA
+for(i in 2:nrow(pred.means.bpm65g)){
   
-  R2<-exp(pred.means.bpm1kg$prediction[i])
-  R1<-exp(pred.means.bpm1kg$prediction[i-1])
-  T2<-as.numeric(as.character(pred.means.bpm1kg$treatm[i]))
-  T1<-as.numeric(as.character(pred.means.bpm1kg$treatm[i-1]))
+  R2<-exp(pred.means.bpm65g$prediction[i])
+  R1<-exp(pred.means.bpm65g$prediction[i-1])
+  T2<-as.numeric(as.character(pred.means.bpm65g$treatm[i]))
+  T1<-as.numeric(as.character(pred.means.bpm65g$treatm[i-1]))
   
-  pred.means.bpm1kg$q10[i]<-(R2/R1)^(10/(T2-T1))
+  pred.means.bpm65g$q10[i]<-(R2/R1)^(10/(T2-T1))
   
 }
 
-pred.means.rmr1kg$q10<-NA
-for(i in 2:nrow(pred.means.rmr1kg)){
+pred.means.rmr65g$q10<-NA
+for(i in 2:nrow(pred.means.rmr65g)){
   
-  R2<-exp(pred.means.rmr1kg$prediction[i])
-  R1<-exp(pred.means.rmr1kg$prediction[i-1])
-  T2<-as.numeric(as.character(pred.means.rmr1kg$treatm[i]))
-  T1<-as.numeric(as.character(pred.means.rmr1kg$treatm[i-1]))
-  pred.means.rmr1kg$q10[i]<-(R2/R1)^(10/(T2-T1))
+  R2<-exp(pred.means.rmr65g$prediction[i])
+  R1<-exp(pred.means.rmr65g$prediction[i-1])
+  T2<-as.numeric(as.character(pred.means.rmr65g$treatm[i]))
+  T1<-as.numeric(as.character(pred.means.rmr65g$treatm[i-1]))
+  pred.means.rmr65g$q10[i]<-(R2/R1)^(10/(T2-T1))
 }
 
-pred.means.mmr1kg$q10<-NA
-for(i in 2:nrow(pred.means.mmr1kg)){
+pred.means.mmr65g$q10<-NA
+for(i in 2:nrow(pred.means.mmr65g)){
   
-  R2<-exp(pred.means.mmr1kg$prediction[i])
-  R1<-exp(pred.means.mmr1kg$prediction[i-1])
-  T2<-as.numeric(as.character(pred.means.mmr1kg$treatm[i]))
-  T1<-as.numeric(as.character(pred.means.mmr1kg$treatm[i-1]))
-  pred.means.mmr1kg$q10[i]<-(R2/R1)^(10/(T2-T1))
+  R2<-exp(pred.means.mmr65g$prediction[i])
+  R1<-exp(pred.means.mmr65g$prediction[i-1])
+  T2<-as.numeric(as.character(pred.means.mmr65g$treatm[i]))
+  T1<-as.numeric(as.character(pred.means.mmr65g$treatm[i-1]))
+  pred.means.mmr65g$q10[i]<-(R2/R1)^(10/(T2-T1))
 }
 
-pred.means.as1kg$q10<-NA
-for(i in 2:nrow(pred.means.as1kg)){
+pred.means.as65g$q10<-NA
+for(i in 2:nrow(pred.means.as65g)){
   
-  R2<-exp(pred.means.as1kg$prediction[i])
-  R1<-exp(pred.means.as1kg$prediction[i-1])
-  T2<-as.numeric(as.character(pred.means.as1kg$treatm[i]))
-  T1<-as.numeric(as.character(pred.means.as1kg$treatm[i-1]))
-  pred.means.as1kg$q10[i]<-(R2/R1)^(10/(T2-T1))
+  R2<-exp(pred.means.as65g$prediction[i])
+  R1<-exp(pred.means.as65g$prediction[i-1])
+  T2<-as.numeric(as.character(pred.means.as65g$treatm[i]))
+  T1<-as.numeric(as.character(pred.means.as65g$treatm[i-1]))
+  pred.means.as65g$q10[i]<-(R2/R1)^(10/(T2-T1))
 }
 
-pred.means.fas1kg$q10<-NA
-for(i in 2:nrow(pred.means.fas1kg)){
+pred.means.fas65g$q10<-NA
+for(i in 2:nrow(pred.means.fas65g)){
   
-  R2<-exp(pred.means.fas1kg$prediction[i])
-  R1<-exp(pred.means.fas1kg$prediction[i-1])
-  T2<-as.numeric(as.character(pred.means.fas1kg$treatm[i]))
-  T1<-as.numeric(as.character(pred.means.fas1kg$treatm[i-1]))
-  pred.means.fas1kg$q10[i]<-(R2/R1)^(10/(T2-T1))
+  R2<-exp(pred.means.fas65g$prediction[i])
+  R1<-exp(pred.means.fas65g$prediction[i-1])
+  T2<-as.numeric(as.character(pred.means.fas65g$treatm[i]))
+  T1<-as.numeric(as.character(pred.means.fas65g$treatm[i-1]))
+  pred.means.fas65g$q10[i]<-(R2/R1)^(10/(T2-T1))
 }
 
 
 for (i in 1:nrow(data.rmr.pred)){
-  data.rmr.pred$rmr_pred[i] <- pred.means.rmr1kg[which(pred.means.rmr1kg$treatm == data.rmr.pred$treatm[i] & pred.means.rmr1kg$origin == data.rmr.pred$origin[i]), "prediction"] + residuals(disc.regrmrO)[i] 
-  data.rmr.pred$mean_rmr[i]<-pred.means.rmr1kg[which(pred.means.rmr1kg$treatm == data.rmr.pred$treatm[i] & pred.means.rmr1kg$origin == data.rmr.pred$origin[i]), "prediction"]
-  data.rmr.pred$mean_rmrSE[i]<-pred.means.rmr1kg[which(pred.means.rmr1kg$treatm == data.rmr.pred$treatm[i] & pred.means.rmr1kg$origin == data.rmr.pred$origin[i]), "SE"]
-  data.rmr.pred$mean_rmrn[i]<-pred.means.rmr1kg[which(pred.means.rmr1kg$treatm == data.rmr.pred$treatm[i] & pred.means.rmr1kg$origin == data.rmr.pred$origin[i]), "n"]
-  data.rmr.pred$q10_rmr[i]<-pred.means.rmr1kg[which(pred.means.rmr1kg$treatm == data.rmr.pred$treatm[i] & pred.means.rmr1kg$origin == data.rmr.pred$origin[i]), "q10"]
+  data.rmr.pred$rmr_pred[i] <- pred.means.rmr65g[which(pred.means.rmr65g$treatm == data.rmr.pred$treatm[i] & pred.means.rmr65g$origin == data.rmr.pred$origin[i]), "prediction"] + residuals(disc.regrmrO)[i] 
+  data.rmr.pred$mean_rmr[i]<-pred.means.rmr65g[which(pred.means.rmr65g$treatm == data.rmr.pred$treatm[i] & pred.means.rmr65g$origin == data.rmr.pred$origin[i]), "prediction"]
+  data.rmr.pred$mean_rmrSE[i]<-pred.means.rmr65g[which(pred.means.rmr65g$treatm == data.rmr.pred$treatm[i] & pred.means.rmr65g$origin == data.rmr.pred$origin[i]), "SE"]
+  data.rmr.pred$mean_rmrn[i]<-pred.means.rmr65g[which(pred.means.rmr65g$treatm == data.rmr.pred$treatm[i] & pred.means.rmr65g$origin == data.rmr.pred$origin[i]), "n"]
+  data.rmr.pred$q10_rmr[i]<-pred.means.rmr65g[which(pred.means.rmr65g$treatm == data.rmr.pred$treatm[i] & pred.means.rmr65g$origin == data.rmr.pred$origin[i]), "q10"]
 }
 for (i in 1:nrow(data.mmr.pred)){
-  data.mmr.pred$mmr_pred[i] <- pred.means.mmr1kg[which(pred.means.mmr1kg$treatm == data.mmr.pred$treatm[i]), "prediction"] + residuals(disc.regmmrO)[i] 
-  data.mmr.pred$mean_mmr[i]<-pred.means.mmr1kg[which(pred.means.mmr1kg$treatm == data.mmr.pred$treatm[i]), "prediction"]
-  data.mmr.pred$mean_mmrSE[i]<-pred.means.mmr1kg[which(pred.means.mmr1kg$treatm == data.mmr.pred$treatm[i]), "SE"]
-  data.mmr.pred$mean_mmrn[i]<-pred.means.mmr1kg[which(pred.means.mmr1kg$treatm == data.mmr.pred$treatm[i]), "n"]
-  data.mmr.pred$q10_mmr[i]<-pred.means.mmr1kg[which(pred.means.mmr1kg$treatm == data.mmr.pred$treatm[i]), "q10"]
+  data.mmr.pred$mmr_pred[i] <- pred.means.mmr65g[which(pred.means.mmr65g$treatm == data.mmr.pred$treatm[i]), "prediction"] + residuals(disc.regmmrO)[i] 
+  data.mmr.pred$mean_mmr[i]<-pred.means.mmr65g[which(pred.means.mmr65g$treatm == data.mmr.pred$treatm[i]), "prediction"]
+  data.mmr.pred$mean_mmrSE[i]<-pred.means.mmr65g[which(pred.means.mmr65g$treatm == data.mmr.pred$treatm[i]), "SE"]
+  data.mmr.pred$mean_mmrn[i]<-pred.means.mmr65g[which(pred.means.mmr65g$treatm == data.mmr.pred$treatm[i]), "n"]
+  data.mmr.pred$q10_mmr[i]<-pred.means.mmr65g[which(pred.means.mmr65g$treatm == data.mmr.pred$treatm[i]), "q10"]
 }
 for (i in 1:nrow(data.as.pred)){
-  data.as.pred$as_pred[i] <- pred.means.as1kg[which(pred.means.as1kg$treatm == data.as.pred$treatm[i]), "prediction"] + residuals(disc.regasO)[i] 
-  data.as.pred$mean_as[i]<-pred.means.as1kg[which(pred.means.as1kg$treatm == data.as.pred$treatm[i]), "prediction"]
-  data.as.pred$mean_asSE[i]<-pred.means.as1kg[which(pred.means.as1kg$treatm == data.as.pred$treatm[i]), "SE"]
-  data.as.pred$mean_asn[i]<-pred.means.as1kg[which(pred.means.as1kg$treatm == data.as.pred$treatm[i]), "n"]
-  data.as.pred$q10_as[i]<-pred.means.as1kg[which(pred.means.as1kg$treatm == data.as.pred$treatm[i]), "q10"]
+  data.as.pred$as_pred[i] <- pred.means.as65g[which(pred.means.as65g$treatm == data.as.pred$treatm[i]), "prediction"] + residuals(disc.regasO)[i] 
+  data.as.pred$mean_as[i]<-pred.means.as65g[which(pred.means.as65g$treatm == data.as.pred$treatm[i]), "prediction"]
+  data.as.pred$mean_asSE[i]<-pred.means.as65g[which(pred.means.as65g$treatm == data.as.pred$treatm[i]), "SE"]
+  data.as.pred$mean_asn[i]<-pred.means.as65g[which(pred.means.as65g$treatm == data.as.pred$treatm[i]), "n"]
+  data.as.pred$q10_as[i]<-pred.means.as65g[which(pred.means.as65g$treatm == data.as.pred$treatm[i]), "q10"]
 }
 for (i in 1:nrow(data.fas.pred)){
-  data.fas.pred$fas_pred[i] <- pred.means.fas1kg[which(pred.means.fas1kg$treatm == data.fas.pred$treatm[i] & pred.means.fas1kg$origin == data.fas.pred$origin[i]), "prediction"] + residuals(disc.regfasO)[i] 
-  data.fas.pred$mean_fas[i]<-pred.means.fas1kg[which(pred.means.fas1kg$treatm == data.fas.pred$treatm[i] & pred.means.fas1kg$origin == data.fas.pred$origin[i]), "prediction"]
-  data.fas.pred$mean_fasSE[i]<-pred.means.fas1kg[which(pred.means.fas1kg$treatm == data.fas.pred$treatm[i] & pred.means.fas1kg$origin == data.fas.pred$origin[i]), "SE"]
-  data.fas.pred$mean_fasn[i]<-pred.means.fas1kg[which(pred.means.fas1kg$treatm == data.fas.pred$treatm[i] & pred.means.fas1kg$origin == data.fas.pred$origin[i]), "n"]
-  data.fas.pred$q10_fas[i]<-pred.means.fas1kg[which(pred.means.fas1kg$treatm == data.fas.pred$treatm[i]), "q10"]
+  data.fas.pred$fas_pred[i] <- pred.means.fas65g[which(pred.means.fas65g$treatm == data.fas.pred$treatm[i] & pred.means.fas65g$origin == data.fas.pred$origin[i]), "prediction"] + residuals(disc.regfasO)[i] 
+  data.fas.pred$mean_fas[i]<-pred.means.fas65g[which(pred.means.fas65g$treatm == data.fas.pred$treatm[i] & pred.means.fas65g$origin == data.fas.pred$origin[i]), "prediction"]
+  data.fas.pred$mean_fasSE[i]<-pred.means.fas65g[which(pred.means.fas65g$treatm == data.fas.pred$treatm[i] & pred.means.fas65g$origin == data.fas.pred$origin[i]), "SE"]
+  data.fas.pred$mean_fasn[i]<-pred.means.fas65g[which(pred.means.fas65g$treatm == data.fas.pred$treatm[i] & pred.means.fas65g$origin == data.fas.pred$origin[i]), "n"]
+  data.fas.pred$q10_fas[i]<-pred.means.fas65g[which(pred.means.fas65g$treatm == data.fas.pred$treatm[i]), "q10"]
 }
 
 for (i in 1:nrow(data.bpm.pred)){
-  data.bpm.pred$bpm_pred[i] <- pred.means.bpm1kg[which(pred.means.bpm1kg$treatm == data.bpm.pred$treatm[i]), "prediction"] + residuals(modbpm)[i] 
-  data.bpm.pred$mean_bpm[i]<-pred.means.bpm1kg[which(pred.means.bpm1kg$treatm == data.bpm.pred$treatm[i]), "prediction"]
-  data.bpm.pred$mean_bpmSE[i]<-pred.means.bpm1kg[which(pred.means.bpm1kg$treatm == data.bpm.pred$treatm[i]), "SE"]
-  data.bpm.pred$mean_bpmn[i]<-pred.means.bpm1kg[which(pred.means.bpm1kg$treatm == data.bpm.pred$treatm[i]), "n"]
-  data.bpm.pred$mean_bpmn[i]<-pred.means.bpm1kg[which(pred.means.bpm1kg$treatm == data.bpm.pred$treatm[i]), "n"]
-  data.bpm.pred$q10_bpm[i]<-pred.means.bpm1kg[which(pred.means.bpm1kg$treatm == data.bpm.pred$treatm[i]), "q10"]
+  data.bpm.pred$bpm_pred[i] <- pred.means.bpm65g[which(pred.means.bpm65g$treatm == data.bpm.pred$treatm[i]), "prediction"] + residuals(modbpm)[i] 
+  data.bpm.pred$mean_bpm[i]<-pred.means.bpm65g[which(pred.means.bpm65g$treatm == data.bpm.pred$treatm[i]), "prediction"]
+  data.bpm.pred$mean_bpmSE[i]<-pred.means.bpm65g[which(pred.means.bpm65g$treatm == data.bpm.pred$treatm[i]), "SE"]
+  data.bpm.pred$mean_bpmn[i]<-pred.means.bpm65g[which(pred.means.bpm65g$treatm == data.bpm.pred$treatm[i]), "n"]
+  data.bpm.pred$mean_bpmn[i]<-pred.means.bpm65g[which(pred.means.bpm65g$treatm == data.bpm.pred$treatm[i]), "n"]
+  data.bpm.pred$q10_bpm[i]<-pred.means.bpm65g[which(pred.means.bpm65g$treatm == data.bpm.pred$treatm[i]), "q10"]
 }
 
 data.bpm.pred.plot<-data.bpm.pred[!data.bpm.pred$treatm=="28", ]
-pred.means.bpm1kg<-pred.means.bpm1kg[!pred.means.bpm1kg$treatm=="28", ]
+pred.means.bpm65g<-pred.means.bpm65g[!pred.means.bpm65g$treatm=="28", ]
 
 
 
@@ -763,15 +759,15 @@ slopesCIdata$temps<-temps
 
 
 # means for final figure 7 
-f.rmr<-pred.means.rmr1kg[pred.means.rmr1kg$origin == "field", ]
-f.mmr<-pred.means.mmr1kg
-f.as<-pred.means.as1kg
-f.fas<-pred.means.fas1kg[pred.means.fas1kg$origin == "field",]
+f.rmr<-pred.means.rmr65g[pred.means.rmr65g$origin == "field", ]
+f.mmr<-pred.means.mmr65g
+f.as<-pred.means.as65g
+f.fas<-pred.means.fas65g[pred.means.fas65g$origin == "field",]
 f.rmr$p<-"rmr"
 f.mmr$p<-"mmr"
 f.as$p<-"as"
 f.fas$p<-"fas"
-f.bpm<-pred.means.bpm1kg
+f.bpm<-pred.means.bpm65g
 f.bpm$p<-"bpm"
 
 plot.final.mr<-rbind(f.rmr[, c("BW", "treatm","prediction", "SE", "df", "n", "q10", "p")],
@@ -898,7 +894,7 @@ manuscrMainC<-ggformat(plot = (
 plot.size <- ggplot(data.abt, aes(x = temp_mean, y = bpm, group=FishID, size = mass.g/1000, color = mass.g/1000, fill = mass.g/1000))+
   geom_errorbar(aes(ymin = bpm - bpm.SD, ymax = bpm + bpm.SD, group=FishID), size=0.5)+
   geom_point(pch=21, size=1)+
-  geom_line(linewidth=0.5)+
+  geom_line(linewidth=0.5, show.legend = F)+
   annotate("segment",  x = 16, xend = 16, color=cols.4[2], y = 60, yend = 70, size=1.5, arrow = arrow( angle = 40, length = unit(0.25,"cm")))+
   annotate("segment",  x = 20, xend = 20, color=cols.4[3], y = 60, yend = 70, size=1.5, arrow = arrow( angle = 40, length = unit(0.25,"cm")))+
   annotate("segment",  x = 22, xend = 22, color=cols.4[4], y = 60, yend = 70, size=1.5, arrow = arrow( angle = 40, length = unit(0.25,"cm")))+
@@ -907,7 +903,9 @@ plot.size <- ggplot(data.abt, aes(x = temp_mean, y = bpm, group=FishID, size = m
   scale_fill_gradient(low = "#97AFB9", high = "#002D47", name = "kg")+
   scale_x_continuous(limits = c(14, 28), breaks = c(14, 16, 18, 20, 22, 24, 26, 28))+
   scale_y_continuous(limits = c(58, 180), breaks = c(60, 80, 100, 120, 140, 160))+
-  annotate("text", x = -4.2, y = 4.35, hjust = 0, label = deparse(bquote(~italic(b) ~"="~ .(round(as.numeric(hr16.b), 3)))), size = 4, parse = T, color = cols.4[2])+
+  annotate("text", x = -4.2, y = 4.35, hjust = 0,
+           label = deparse(bquote(~italic(b) ~"="~ .(round(as.numeric(hr16.b), 3)))),
+           size = 4, parse = T, color = cols.4[2])+
   annotate(geom = "text", x = 15.5, y = 175, hjust = 0,
          label = paste("Size range: ", min(data.abt$mass.g), " to ", max(data.abt$mass.g), " g", sep =""),
          color = "black")
@@ -921,21 +919,22 @@ plot.size<-plot.size+theme(legend.position = c(0.32, 0.81),
 
 
 plot.bpm.lmer<-ggplot()+
-  geom_label(pred.means.bpm1kg, mapping = aes(x = treatm, y = exp(prediction), label = round(q10,2), fill = NULL), label.size = NA, nudge_x = 0, nudge_y = -5.5, size = 3)+
-  geom_line(pred.means.bpm1kg, mapping = aes(y=exp(prediction), x=treatm, group= factor(BW)), alpha=1, show.legend = F, color = "black", position = position_dodge(width = 0.4))+
-  geom_errorbar(pred.means.bpm1kg, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE), x=treatm), width = 0.5, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
-  geom_point(pred.means.bpm1kg, mapping = aes(y=exp(prediction), x=treatm),
+  geom_label(pred.means.bpm65g, mapping = aes(x = treatm, y = exp(prediction), label = round(q10,2), fill = NULL), label.size = NA, nudge_x = 0, nudge_y = -5.5, size = 3)+
+  geom_line(pred.means.bpm65g, mapping = aes(y=exp(prediction), x=treatm, group= factor(BW)), alpha=1, show.legend = F, color = "black", position = position_dodge(width = 0.4))+
+  geom_errorbar(pred.means.bpm65g, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE), x=treatm), width = 0.5, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
+  geom_point(pred.means.bpm65g, mapping = aes(y=exp(prediction), x=treatm),
              show.legend = F, alpha = 1, size = 3, fill = "grey70", color = "black", pch=21, position = position_dodge(width = 0.4))+
-  geom_point(pred.means.bpm1kg[pred.means.bpm1kg$treatm == "16",], mapping = aes(y=exp(prediction), x=treatm),
+  geom_point(pred.means.bpm65g[pred.means.bpm65g$treatm == "16",], mapping = aes(y=exp(prediction), x=treatm),
              show.legend = F, alpha = 1, size = 3, fill = cols.4[2], color = "black", pch=21, position = position_dodge(width = 0.4))+
-  geom_point(pred.means.bpm1kg[pred.means.bpm1kg$treatm == "20",], mapping = aes(y=exp(prediction), x=treatm),
+  geom_point(pred.means.bpm65g[pred.means.bpm65g$treatm == "20",], mapping = aes(y=exp(prediction), x=treatm),
              show.legend = F, alpha = 1, size = 3, fill = cols.4[3], color = "black", pch=21, position = position_dodge(width = 0.4))+
-  geom_point(pred.means.bpm1kg[pred.means.bpm1kg$treatm == "22",], mapping = aes(y=exp(prediction), x=treatm),
+  geom_point(pred.means.bpm65g[pred.means.bpm65g$treatm == "22",], mapping = aes(y=exp(prediction), x=treatm),
              show.legend = F, alpha = 1, size = 3, fill = cols.4[4], color = "black", pch=21, position = position_dodge(width = 0.4))+
-  geom_point(pred.means.bpm1kg[pred.means.bpm1kg$treatm == "24",], mapping = aes(y=exp(prediction), x=treatm),
+  geom_point(pred.means.bpm65g[pred.means.bpm65g$treatm == "24",], mapping = aes(y=exp(prediction), x=treatm),
              show.legend = F, alpha = 1, size = 3, fill = "red", color = "black", pch=21, position = position_dodge(width = 0.4))+
-  annotate("text", x = 9, y = 75, label = "Mass-normalized \n for 1kg fish")+
+  annotate("text", x = 9, y = 87, label = "Mass-normalized \n for 65g fish")+
   scale_x_discrete( breaks = c("14", "16", "18", "20", "22", "24", "26", "28"))+
+  scale_y_continuous(breaks = seq(80, 140, 10))+
   theme_classic()
 ggformat(plot.bpm.lmer, y_title = expression(italic(f)[Hmax]~(beats~min^-1)), x_title = "Temperature ºC", size_text = 15)
 
@@ -1030,35 +1029,35 @@ hrmax2<-ggformat(
 
 ## Figure 6 ABCD ------ 
 
-plot.rmr.lmer<-ggplot(data=data.rmr.pred, aes(y=exp(rmr_pred), x=as.numeric(as.character(treatm)), shape = origin, fill = factor(treatm), group=factor(origin), color = factor(treatm)))+
-  geom_line(pred.means.rmr1kg, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)), linetype = factor(origin), group=factor(origin)),
+plot.rmr.lmer<-ggplot(data=data.rmr.pred, aes(y=exp(rmr_pred)/BW, x=as.numeric(as.character(treatm)), shape = origin, fill = factor(treatm), group=factor(origin), color = factor(treatm)))+
+  geom_line(pred.means.rmr65g, mapping = aes(y=exp(prediction)/BW, x=as.numeric(as.character(treatm)), linetype = factor(origin), group=factor(origin)),
             alpha=1, show.legend = F, color = "black", position = position_dodge(width = 0.4))+
   # geom_boxplot(mapping= aes(group = factor(treatm)), alpha=0.4, show.legend = F)+
   geom_point(show.legend = F, alpha = 0.4, size = 2, position = position_jitterdodge(dodge.width = 0.4, jitter.width = 0.2))+
-  geom_errorbar(pred.means.rmr1kg, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE), group = factor(origin), x=as.numeric(as.character(treatm))), width = 0.2, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
-  geom_point(pred.means.rmr1kg, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)), shape = origin, fill = factor(treatm), group=factor(origin), color = factor(treatm)),
+  geom_errorbar(pred.means.rmr65g, mapping = aes(ymax = exp(prediction+SE)/BW, ymin = exp(prediction-SE)/BW, group = factor(origin), x=as.numeric(as.character(treatm))), width = 0.2, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
+  geom_point(pred.means.rmr65g, mapping = aes(y=exp(prediction)/BW, x=as.numeric(as.character(treatm)), shape = origin, fill = factor(treatm), group=factor(origin), color = factor(treatm)),
              show.legend = F, alpha = 1, size = 4, color = "black", position = position_dodge(width = 0.4))+
   scale_shape_manual(values = c(21,1))+
   scale_x_continuous(breaks = c(12, 14, 16,18,20, 22)) +
   scale_fill_manual(values = c(cols.4))+
   scale_color_manual(values = c(cols.4))+
   scale_linetype_manual(values = c(1,2))+
-  annotate(geom = "text", x = 12, y = 0.49, label = "a", size = 4)+
-  annotate(geom = "text", x = 16, y = 0.49, label = "b", size = 4)+
-  annotate(geom = "text", x = 20, y = 0.49, label = "c", size = 4)+
-  annotate(geom = "text", x = 22, y = 0.49, label = "d", size = 4)+
-  annotate(geom = "text", x = 12, y = 0.28, label = "n = 66", size = 3.2)+
-  annotate(geom = "text", x = 16, y = 0.28, label = "n = 74", size = 3.2)+
-  annotate(geom = "text", x = 20, y = 0.28, label = "n = 66", size = 3.2)+
-  annotate(geom = "text", x = 22, y = 0.28, label = "n = 27", size = 3.2)+
-  annotate(geom = "segment", x = 13, xend = 14, y = 3.5, yend = 3.5, colour = "black", linetype = 2, linewidth = 0.5)+
-  annotate(geom = "segment", x = 13, xend = 14, y = 3.85, yend = 3.85, colour = "black", linetype = 1, linewidth = 0.5)+
-  annotate("pointrange", x = 13.5, y = 3.5, ymin = 3.5, ymax = 3.5, colour = "black", pch = 1, size = 0.9, stroke = 0.6, linewidth = 0)+
-  annotate("pointrange", x = 13.5, y = 3.85, ymin = 3.85, ymax = 3.85, colour = "black", fill = "white", pch = 21, size = 0.9, stroke = 0.6, linewidth = 0)+
-  annotate(geom = "text", hjust = 0, x = 14.2, y = 3.85, label = "Wild - caugth", size = 4)+
-  annotate(geom = "text", hjust = 0, x = 14.2, y = 3.5, label = "Lab - born", size = 4)+
-  annotate(geom = "text", hjust = 0, x = 13, y = 3.2, label = expression("origin: p = 8.93e-4"), size = 3.2)+
-  scale_y_continuous(limits = c(0,4.1), breaks = c(0.5, 1.5, 2.5, 3.5)) +
+  annotate(geom = "text", x = 12, y = 0.6, label = "a", size = 4)+
+  annotate(geom = "text", x = 16, y = 0.6, label = "b", size = 4)+
+  annotate(geom = "text", x = 20, y = 0.6, label = "c", size = 4)+
+  annotate(geom = "text", x = 22, y = 0.6, label = "d", size = 4)+
+  annotate(geom = "text", x = 12, y = 0.2, label = "n = 66", size = 3.2)+
+  annotate(geom = "text", x = 16, y = 0.2, label = "n = 74", size = 3.2)+
+  annotate(geom = "text", x = 20, y = 0.2, label = "n = 66", size = 3.2)+
+  annotate(geom = "text", x = 22, y = 0.2, label = "n = 27", size = 3.2)+
+  annotate(geom = "segment", x = 13, xend = 14, y = 6.35, yend = 6.35, colour = "black", linetype = 2, linewidth = 0.5)+
+  annotate(geom = "segment", x = 13, xend = 14, y = 6.85, yend = 6.85, colour = "black", linetype = 1, linewidth = 0.5)+
+  annotate("pointrange", x = 13.5, y = 6.35, ymin = 6.35, ymax = 6.35, colour = "black", pch = 1, size = 0.9, stroke = 0.6, linewidth = 0)+
+  annotate("pointrange", x = 13.5, y = 6.85, ymin = 6.85, ymax = 6.85, colour = "black", fill = "white", pch = 21, size = 0.9, stroke = 0.6, linewidth = 0)+
+  annotate(geom = "text", hjust = 0, x = 14.2, y = 6.85, label = "Wild - caugth", size = 4)+
+  annotate(geom = "text", hjust = 0, x = 14.2, y = 6.35, label = "Lab - born", size = 4)+
+  annotate(geom = "text", hjust = 0, x = 13, y = 5.85, label = expression("origin: p = 8.93e-4"), size = 3.2)+
+  scale_y_continuous(limits = c(0,7), breaks = c(seq(1, 8, 1))) +
   theme_classic()
 ggformat(print =T, plot.rmr.lmer, y_title = expression(RMR~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
 # plot.rmr.lmer<-plot.rmr.lmer+theme(legend.position = c(0.8, 0.2))
@@ -1066,11 +1065,11 @@ ggformat(print =T, plot.rmr.lmer, y_title = expression(RMR~(mgO[2]~min^-1~kg^-1)
 plot.fas.lmer<-ggplot(data=data.fas.pred, aes(y=exp(fas_pred), x=as.numeric(as.character(treatm)), shape = origin, fill = factor(treatm), group=factor(origin), color = factor(treatm)))+
   # geom_line(size=0.2, alpha=0.6)+
   # geom_boxplot(mapping= aes(group = factor(treatm)), alpha=0.4, show.legend = F)+
-  geom_line(pred.means.fas1kg, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)), linetype = factor(origin), group=factor(origin)),
+  geom_line(pred.means.fas65g, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)), linetype = factor(origin), group=factor(origin)),
             alpha=1, show.legend = F, color = "black", position = position_dodge(width = 0.4))+
   geom_point(show.legend = F, alpha = 0.4, size = 2, position = position_jitterdodge(dodge.width = 0.4, jitter.width = 0.2))+
-  geom_errorbar(pred.means.fas1kg, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE), group = factor(origin), x=as.numeric(as.character(treatm))), width = 0.2, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
-  geom_point(pred.means.fas1kg, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)), shape = origin, fill = factor(treatm), group=factor(origin), color = factor(treatm)),
+  geom_errorbar(pred.means.fas65g, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE), group = factor(origin), x=as.numeric(as.character(treatm))), width = 0.2, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
+  geom_point(pred.means.fas65g, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)), shape = origin, fill = factor(treatm), group=factor(origin), color = factor(treatm)),
              show.legend = F, alpha = 1, size = 4, color = "black", position = position_dodge(width = 0.4))+
   scale_shape_manual(values = c(21,1))+
   scale_fill_manual(values = c(cols.4))+
@@ -1091,13 +1090,13 @@ plot.fas.lmer<-ggplot(data=data.fas.pred, aes(y=exp(fas_pred), x=as.numeric(as.c
 ggformat(plot.fas.lmer, y_title = "FAS (MMR / RMR)", x_title = "Temperature ºC", size_text = 15)
 
 
-plot.AS.lmer<-ggplot(data=data.as.pred, mapping = aes(y=exp(as_pred), x=as.numeric(as.character(treatm)), fill = factor(treatm), color = factor(treatm), group =  factor(treatm)))+
+plot.AS.lmer<-ggplot(data=data.as.pred, mapping = aes(y=exp(as_pred)/BW, x=as.numeric(as.character(treatm)), fill = factor(treatm), color = factor(treatm), group =  factor(treatm)))+
   # geom_line(size=0.2, alpha=0.6)+
   # geom_boxplot(mapping= aes(group = factor(treatm)), alpha=0.4, show.legend = F)+
-  geom_line(pred.means.as1kg, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)), group= factor(BW)), alpha=1, show.legend = F, color = "black", position = position_dodge(width = 0.4))+
-  geom_jitter(show.legend = F, alpha = 0.4, size = 2,  pch=21, width = 0.05)+
-  geom_errorbar(pred.means.as1kg, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE), x=as.numeric(as.character(treatm))), width = 0.2, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
-  geom_point(pred.means.as1kg, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)),  fill = factor(treatm), color = factor(treatm)),
+  geom_line(pred.means.as65g, mapping = aes(y=exp(prediction)/BW, x=as.numeric(as.character(treatm)), group = factor(BW)), alpha=1, show.legend = F, color = "black", position = position_dodge(width = 0.4))+
+  geom_jitter(show.legend = F, alpha = 0.4, size = 2, pch=21, width = 0.05)+
+  geom_errorbar(pred.means.as65g, mapping = aes(ymax = exp(prediction+SE)/BW, ymin = exp(prediction-SE)/BW, x=as.numeric(as.character(treatm))), width = 0.2, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
+  geom_point(pred.means.as65g, mapping = aes(y=exp(prediction)/BW, x=as.numeric(as.character(treatm)),  fill = factor(treatm), color = factor(treatm)),
              show.legend = F, alpha = 1, size = 4, color = "black", pch=21, position = position_dodge(width = 0.4))+
   # scale_shape_manual(values = c(21, 21, 21, 21))+
   scale_fill_manual(values = c(cols.4))+
@@ -1115,27 +1114,27 @@ plot.AS.lmer<-ggplot(data=data.as.pred, mapping = aes(y=exp(as_pred), x=as.numer
   scale_y_continuous(limits = c(0,4.1), breaks = c(0.5, 1.5, 2.5, 3.5)) 
 ggformat(plot.AS.lmer, y_title = expression(AAS~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
 
-plot.mmr.lmer<-ggplot(data=data.mmr.pred, aes(y=exp(mmr_pred), x=as.numeric(as.character(treatm)), fill = factor(treatm),color = factor(treatm)))+
+plot.mmr.lmer<-ggplot(data=data.mmr.pred, aes(y=exp(mmr_pred)/BW, x=as.numeric(as.character(treatm)), fill = factor(treatm),color = factor(treatm)))+
   # geom_line(size=0.2, alpha=0.6)+
   # geom_boxplot(mapping= aes(group = factor(treatm)), alpha=0.4, show.legend = F)+
-  geom_line(pred.means.mmr1kg, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)), group= factor(BW)), alpha=1, show.legend = F, color = "black", position = position_dodge(width = 0.4))+
+  geom_line(pred.means.mmr65g, mapping = aes(y=exp(prediction)/BW, x=as.numeric(as.character(treatm)), group= factor(BW)), alpha=1, show.legend = F, color = "black", position = position_dodge(width = 0.4))+
   geom_jitter(show.legend = F, alpha = 0.4, size = 2, pch=21, width = 0.05)+
-  geom_errorbar(pred.means.mmr1kg, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE), x=as.numeric(as.character(treatm))), width = 0.2, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
-  geom_point(pred.means.mmr1kg, mapping = aes(y=exp(prediction), x=as.numeric(as.character(treatm)),  fill = factor(treatm), color = factor(treatm)),
+  geom_errorbar(pred.means.mmr65g, mapping = aes(ymax = exp(prediction+SE)/BW, ymin = exp(prediction-SE)/BW, x=as.numeric(as.character(treatm))), width = 0.2, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
+  geom_point(pred.means.mmr65g, mapping = aes(y=exp(prediction)/BW, x=as.numeric(as.character(treatm)),  fill = factor(treatm), color = factor(treatm)),
              show.legend = F, alpha = 1, size = 4, color = "black", pch=21, position = position_dodge(width = 0.4))+
   # scale_shape_manual(values = c(21, 21, 21, 21))+
   scale_fill_manual(values = c(cols.4))+
   scale_color_manual(values = c(cols.4))+
   scale_x_continuous(breaks = c(12, 14, 16,18,20, 22)) +
-  annotate(geom = "text", x = 12, y = 0.6, label = "a", size = 4)+
-  annotate(geom = "text", x = 16, y = 0.6, label = "b", size = 4)+
-  annotate(geom = "text", x = 20, y = 0.6, label = "c", size = 4)+
-  annotate(geom = "text", x = 22, y = 0.6, label = "cd", size = 4)+
-  annotate(geom = "text", x = 12, y = 0.3, label = "n = 66", size = 3.2)+
-  annotate(geom = "text", x = 16, y = 0.3, label = "n = 76", size = 3.2)+
-  annotate(geom = "text", x = 20, y = 0.3, label = "n = 68", size = 3.2)+
-  annotate(geom = "text", x = 22, y = 0.3, label = "n = 28", size = 3.2)+
-  scale_y_continuous(limits = c(0,6), breaks = c(0.5, 1.5, 2.5, 3.5, 4.5, 5.5 )) +
+  annotate(geom = "text", x = 12, y = 0.7, label = "a", size = 4)+
+  annotate(geom = "text", x = 16, y = 0.7, label = "b", size = 4)+
+  annotate(geom = "text", x = 20, y = 0.7, label = "c", size = 4)+
+  annotate(geom = "text", x = 22, y = 0.7, label = "cd", size = 4)+
+  annotate(geom = "text", x = 12, y = 0.2, label = "n = 66", size = 3.2)+
+  annotate(geom = "text", x = 16, y = 0.2, label = "n = 76", size = 3.2)+
+  annotate(geom = "text", x = 20, y = 0.2, label = "n = 68", size = 3.2)+
+  annotate(geom = "text", x = 22, y = 0.2, label = "n = 28", size = 3.2)+
+  scale_y_continuous(limits = c(0,10), breaks = c(seq(0,10, 1))) +
   theme_classic()
 ggformat(plot.mmr.lmer, y_title = expression(MMR~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
 
@@ -1169,7 +1168,7 @@ p1<-ggformat(plot=
               annotate(geom = "text",x = 0.9, y = 1.3, hjust = 0, label = paste("MR: ", min(data$Mass.g), " - ", max(data$Mass.g), " g", sep =""),color = "black")+
               annotate(geom = "text",x = 0.9, y = 1.0, hjust = 0, label = paste("ABT: ", min(data.abtID$mass.g), " - ", max(data.abtID$mass.g), " g", sep =""),color = "black")+
                theme_classic()
-             , y_title = "", x_title = "Scaling Slopes", size_text = 13)
+             , y_title = "", x_title = "Scaling Slopes", size_text = 15)
 p1<-p1+theme(plot.margin = margin(0,0.1,0,-0.3, "cm"))
 
 
@@ -1198,7 +1197,7 @@ p2<-ggformat(plot=
                                            expression(T[PEAK]),
                                            expression(FAS)))+
                theme_classic()
-             , y_title = "", x_title = "Scaling Slopes", size_text = 13)
+             , y_title = "", x_title = "Scaling Slopes", size_text = 15)
 p2<-p2+theme(plot.margin = margin(0,0.1,0,-0.3, "cm"))
 
 p3.q10<-
@@ -1215,7 +1214,7 @@ p3.q10<-
   annotate("segment",  x = 16, xend = 16, color=cols.4[2], y = 0, yend = 0.3, size=1.2, arrow = arrow(angle = 40, length = unit(0.25,"cm")))+
   annotate("segment",  x = 20, xend = 20, color=cols.4[3], y = 0, yend = 0.3, size=1.2, arrow = arrow(angle = 40, length = unit(0.25,"cm")))+
   annotate("segment",  x = 22, xend = 22, color=cols.4[4], y = 0, yend = 0.3, size=1.2, arrow = arrow(angle = 40, length = unit(0.25,"cm")))+
-  # geom_errorbar(pred.means.rmr1kg, mapping = aes(ymax = exp(prediction+SE)*10, ymin = exp(prediction-SE)*10, group = factor(BW), x=treatm), width = 0.5, inherit.aes = F, color = "black", show.legend = F)+
+  # geom_errorbar(pred.means.rmr65g, mapping = aes(ymax = exp(prediction+SE)*10, ymin = exp(prediction-SE)*10, group = factor(BW), x=treatm), width = 0.5, inherit.aes = F, color = "black", show.legend = F)+
   annotate("text", x = 15.5, y = 1.7, hjust = 1, label = expression(bold(MMR)), size = 4, parse = T)+
   annotate("text", x = 15.5, y = 1.1, hjust = 1, label = expression(bold(paste("AAS"))),  size = 4, parse = T)+
   annotate("text", x = 15.5, y = 0.75, hjust = 1, label = expression(bold(paste("FAS"))),  size = 4, parse = T)+
@@ -1223,54 +1222,63 @@ p3.q10<-
   annotate("text", x = 16.6, y = 2, hjust = 1, label = expression(bold(italic(f)[Hmax])), size = 4, parse = T)+
   theme_classic()
 ggformat(p3.q10, x_title = expression(Acute~treatments~(degree*C)),
-         y_title = expression(Q[10]), size_text = 13, print = T)
-p3.q10<-p3.q10+theme(plot.margin = margin(-0.5,0.1,0,0, "cm"))
+         y_title = expression(Q[10]), size_text = 15, print = T)
+p3.q10<-p3.q10+theme(plot.margin = margin(-0.5,0.1,0,0, "cm"), 
+             axis.title.y = element_text(vjust = -4))
 
 
 
 p3<-
-  ggplot(plot.final.mr2, mapping = aes(x = as.numeric(as.character(treatm)), y=exp(prediction), group=factor(p), 
+  ggplot(plot.final.mr2[!c(plot.final.mr2$p == "fas"),], mapping = aes(x = as.numeric(as.character(treatm)), y=exp(prediction)/BW, group=factor(p), 
                                        fill = factor(treatm),
                                        color = factor(treatm),
                                        shape = factor(p)))+
-  # geom_line(data = f.fas,
-  #           mapping = aes(x = treatm, y=exp(prediction)-1, group=factor(p), fill = factor(treatm), shape = factor(p)),
-  #           show.legend = F,size=1,  color = "grey70")+
+  geom_line(plot.final.mr2[c(plot.final.mr2$p == "fas"),], mapping = aes(x = as.numeric(as.character(treatm)), y=exp(prediction), group=factor(p), 
+                                       fill = factor(treatm),
+                                       color = factor(treatm),
+                                       shape = factor(p)),
+            alpha=1, show.legend = F,size=1,  color = "grey70")+
+  geom_point(plot.final.mr2[c(plot.final.mr2$p == "fas"),], mapping = aes(x = as.numeric(as.character(treatm)), y=exp(prediction), group=factor(p), 
+                                       fill = factor(treatm),
+                                       color = factor(treatm),
+                                       shape = factor(p)), show.legend = F)+
   geom_line(alpha=1, show.legend = F,size=1,  color = "grey70")+
-  geom_line(pred.means.bpm1kg,  inherit.aes = F,
-            mapping = aes(y=exp(prediction)/25, x=as.numeric(as.character(treatm)), group= factor(BW)),
+  geom_line(pred.means.bpm65g,  inherit.aes = F,
+            mapping = aes(y=exp(prediction)/20, x=as.numeric(as.character(treatm)), group= factor(BW)),
             alpha=1, show.legend = F, size=1,  color = "grey70")+
-  geom_vline(xintercept = 24, size=0.5, color = "red")+# geom_point(data = f.fas, size = 2,show.legend = F,
-  #            mapping = aes(x = treatm, y=exp(prediction)-1, group=factor(p), fill = factor(treatm), shape = factor(p)))+
+  geom_vline(xintercept = 24, size=0.5, color = "red")+
   geom_point(show.legend = F, alpha = 1, size = 2)+
   scale_fill_manual(values = c(cols.4))+
   scale_color_manual(values = c(cols.4))+
   scale_shape_manual(values = c(22,  24, 23, 25))+
-  scale_x_continuous(breaks = c( 12, 16, 20, 22, 24), limits= c(7, 28))+
-  scale_y_continuous(sec.axis = sec_axis( trans=~.*25, name=expression(italic(f)[Hmax]~(beats~min^-1)), breaks = seq(75,125, 10)),
-                     breaks = seq(1, 5, 0.5))+
-  # geom_errorbar(pred.means.bpm1kg, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE)/100, x=treatm),
+  scale_x_continuous(breaks = c( 12, 16, 20, 22, 24), limits= c(10, 27.5))+
+  scale_y_continuous(sec.axis = sec_axis( trans=~.*20,
+                                          name=expression(italic(f)[Hmax]~(beats~min^-1)),
+                                          breaks = seq(80,140, 15)),
+                     breaks = c(0.5,1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5))+
+  # geom_errorbar(pred.means.bpm65g, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE)/100, x=treatm),
   #               width = 0.5, inherit.aes = F, color = "black", position = position_dodge(width = 0.4), show.legend = F)+
-  geom_point(pred.means.bpm1kg, mapping = aes(y=exp(prediction)/25, x=as.numeric(as.character(treatm))),
+  geom_point(pred.means.bpm65g, mapping = aes(y=exp(prediction)/20, x=as.numeric(as.character(treatm))),
              show.legend = F, alpha = 1, size = 2, fill = "grey70", color = "grey70", pch=21, inherit.aes = F)+
-  geom_point(pred.means.bpm1kg[pred.means.bpm1kg$treatm == "16",], mapping = aes(y=exp(prediction)/25, x=as.numeric(as.character(treatm))),
+  geom_point(pred.means.bpm65g[pred.means.bpm65g$treatm == "16",], mapping = aes(y=exp(prediction)/20, x=as.numeric(as.character(treatm))),
              show.legend = F, alpha = 1, size = 2, fill = cols.4[2], color = cols.4[2], pch=21, inherit.aes = F)+
-  geom_point(pred.means.bpm1kg[pred.means.bpm1kg$treatm == "20",], mapping = aes(y=exp(prediction)/25, x=as.numeric(as.character(treatm))),
+  geom_point(pred.means.bpm65g[pred.means.bpm65g$treatm == "20",], mapping = aes(y=exp(prediction)/20, x=as.numeric(as.character(treatm))),
              show.legend = F, alpha = 1, size = 2, fill = cols.4[3], color = cols.4[3], pch=21, inherit.aes = F)+
-  geom_point(pred.means.bpm1kg[pred.means.bpm1kg$treatm == "22",], mapping = aes(y=exp(prediction)/25, x=as.numeric(as.character(treatm))),
+  geom_point(pred.means.bpm65g[pred.means.bpm65g$treatm == "22",], mapping = aes(y=exp(prediction)/20, x=as.numeric(as.character(treatm))),
              show.legend = F, alpha = 1, size = 2, fill = cols.4[4], color = cols.4[4], pch=21, inherit.aes = F)+
-  geom_point(pred.means.bpm1kg[pred.means.bpm1kg$treatm == "24",], mapping = aes(y=exp(prediction)/25, x=as.numeric(as.character(treatm))),
+  geom_point(pred.means.bpm65g[pred.means.bpm65g$treatm == "24",], mapping = aes(y=exp(prediction)/20, x=as.numeric(as.character(treatm))),
              show.legend = F, alpha = 1, size = 2, fill = "red", color = "red", pch=21, inherit.aes = F)+
-  # geom_errorbar(pred.means.rmr1kg, mapping = aes(ymax = exp(prediction+SE)*10, ymin = exp(prediction-SE)*10, group = factor(BW), x=treatm), width = 0.5, inherit.aes = F, color = "black", show.legend = F)+
-  annotate("text", x = 11, y = 2.8, hjust = 1, label = expression(bold(MMR)), size = 4, parse = T)+
-  annotate("text", x = 11, y = 1.65, hjust = 1, label = expression(bold(paste("AAS"))),  size = 4, parse = T)+
-  annotate("text", x = 11, y = 2.2, hjust = 1, label = expression(bold(paste("FAS"))),  size = 4, parse = T)+
-  annotate("text", x = 11, y = 1.2, hjust = 1, label = expression(bold(RMR)), size = 4, parse = T)+
-  annotate("text", x = 21, y = 3.2, hjust = 1, label = expression(bold(italic(f)[Hmax])), size = 4, parse = T)+
+  # geom_errorbar(pred.means.rmr65g, mapping = aes(ymax = exp(prediction+SE)*10, ymin = exp(prediction-SE)*10, group = factor(BW), x=treatm), width = 0.5, inherit.aes = F, color = "black", show.legend = F)+
+  annotate("text", x = 15, y = 6, hjust = 1, label = expression(bold(MMR)), size = 4, parse = T)+
+  annotate("text", x = 22.5, y = 3.2, hjust = 1, label = expression(bold(paste("AAS"))),  size = 4, parse = T)+
+  annotate("text", x = 22.5, y = 2.0, hjust = 1, label = expression(bold(paste("FAS"))),  size = 4, parse = T)+
+  annotate("text", x = 15, y = 3.2, hjust = 1, label = expression(bold(RMR)), size = 4, parse = T)+
+  annotate("text", x = 22.5, y = 5.3, hjust = 1, label = expression(bold(italic(f)[Hmax])), size = 4, parse = T)+
   theme_classic()
 ggformat(p3, x_title = expression(Temperature~(degree*C)),
-         y_title = expression(MR~(mgO[2]~min^-1~kg^-1)), size_text = 13, print = T)
-p3<-p3+theme(plot.margin = margin(-0.5,0.1,0,0, "cm"))
+         y_title = expression(MR~(mgO[2]~min^-1~kg^-1)), size_text = 15, print = T)
+p3<-p3+theme(plot.margin = margin(-0.5,0.1,0,0, "cm"), 
+             axis.title.y = element_text(vjust = -4))
 
 
 ## Supplementary Figure 1 ABCD------
@@ -1492,7 +1500,8 @@ cowplot::plot_grid(manuscrMainA, manuscrMainB, align = "hv",
                    labels = c("a", "b"), 
                    label_x = c(0.16, 0.16), 
                    label_y = c(0.9)) %>% 
-ggsave(filename = paste( "./Figures/Fig3_AB_",Sys.Date(),".png",sep=""), width = 8, height = 4)
+ggsave(filename = paste( "./Figures/Fig3_AB_",Sys.Date(),".svg",sep=""), width = 8, height = 4)
+
 
 ## Save Fig 4 ABC ---------
 cowplot:::plot_grid(plot.size, plot2, 
@@ -1501,7 +1510,7 @@ cowplot:::plot_grid(plot.size, plot2,
                     label_x = c(0.22, 0.22),
                     label_y = c(0.9),
                     label_size = 14) %>%
-ggsave(filename = paste( "./Figures/Fig4_AB_",Sys.Date(),".png",sep=""),
+ggsave(filename = paste( "./Figures/Fig4_AB_",Sys.Date(),".svg",sep=""),
          width = 8, height = 4)
 
 
@@ -1511,7 +1520,7 @@ cowplot::plot_grid(tpeak2, temparrh2, tabt2, hrmax2,
                    label_x = c(0.22, 0.22),
                    label_y = c(0.9, 0.9),
                    labels = "auto" ) %>% 
-ggsave(filename = paste( "./Figures/Fig5_ABCD_",Sys.Date(),".png",sep=""),
+ggsave(filename = paste( "./Figures/Fig5_ABCD_",Sys.Date(),".svg",sep=""),
        width = 8, height = 8)
 
 ## Save Fig 6 ABCD ---------
@@ -1520,16 +1529,16 @@ cowplot:::plot_grid(plot.mmr.lmer, plot.rmr.lmer, plot.AS.lmer, plot.fas.lmer,
                     ncol =2, labels = "auto", align = "vh",
                     label_x = c(0.22, 0.22),
                     label_y = c(0.9, 0.9)) %>%
-ggsave(filename = paste( "./Figures/Fig6_ABCD_",Sys.Date(),".png",sep=""),
+ggsave(filename = paste( "./Figures/Fig6_ABCD_",Sys.Date(),".svg",sep=""),
          width = 8, height = 8)
 
 ## Save Fig 7 ABCD -------
 cowplot:::plot_grid(p1, p2, p3, p3.q10, nrow = 2, ncol = 2,
                     labels = "auto",
                     align = "hv",
-                    label_x = c(0.18, 0.18),
-                    label_y = c(0.9, 0.9)) %>% 
-ggsave(filename = paste( "./Figures/Fig7_",Sys.Date(),".png",sep=""), width = 10, height = 8)
+                    label_x = c(0.21, 0.21),
+                    label_y = c(0.92, 0.92)) %>% 
+ggsave(filename = paste( "./Figures/Fig7_",Sys.Date(),".svg",sep=""), width = 10, height = 8)
 
 
 ## Save Fig S1 ABCD --------
@@ -1645,4 +1654,74 @@ means.heartID.SizeClass<-data.abtID %>%
 mean(data.abtID[data.abtID$sizeClass == "YOY", "breakpoint_Cels"], na.rm = T) - mean(data.abtID[data.abtID$sizeClass == "> YOY", "breakpoint_Cels"], na.rm =T)
 mean(data.abtID[data.abtID$sizeClass == "YOY", "Tpeak"]) - mean(data.abtID[data.abtID$sizeClass == "> YOY", "Tpeak"], na.rm =T)
 mean(data.abtID[data.abtID$sizeClass == "YOY", "temp_ARRH"]) - mean(data.abtID[data.abtID$sizeClass == "> YOY", "temp_ARRH"], na.rm =T)
+
+
+
+# *****************************************
+# check estimated marginal means: BW =  65 g 
+# Table Supplemental meterial 
+pred.mmr65g<-as.data.frame(emmeans(disc.regmmr, c("treatm"), at = list(BW = 0.065), calc = c(n = ".wgt."))) # n =8
+pred.rmr65g<-as.data.frame(emmeans(disc.regrmrO, c("treatm","origin"), at = list(BW = 0.065), calc = c(n = ".wgt."))) # n =8
+pred.aas65g<-as.data.frame(emmeans(disc.regas, c("treatm"), at = list(BW = 0.065), calc = c(n = ".wgt."))) # n =4
+pred.fas65g<-as.data.frame(emmeans(disc.regfasO, c("treatm","origin"), at = list(BW = 0.065), calc = c(n = ".wgt."))) # n=8
+pred.bpm65g<-as.data.frame(emmeans(modbpm, c("treatm"), at = list(BW = 0.065), calc = c(n = ".wgt.")))
+
+# pred 65 g fish mass specific mean MMR
+pred.mmr65g$emmean.exp.mass.spec<-exp(pred.mmr65g$emmean)/0.065
+# pred 65 g fish mass specific mean RMR
+pred.rmr65g$emmean.exp.mass.spec<-exp(pred.rmr65g$emmean)/0.065
+# pred 65 g fish mass specific mean AAS
+pred.aas65g$emmean.exp.mass.spec<-exp(pred.aas65g$emmean)/0.065
+# pred 65 g fish mass specific mean FAS
+pred.fas65g$emmean.exp<-exp(pred.fas65g$emmean)
+# pred BPM 
+pred.bpm65g$emmean.exp<-exp(pred.bpm65g$emmean)
+
+
+# coefficient for variation for size-independent values Supplemental table. 
+data.rmr.pred %>% 
+  group_by( origin, treatm ) %>% 
+  dplyr:::summarise(
+    cv.rmr = sd(exp(rmr_pred), na.rm = T) / mean(exp(rmr_pred), na.rm = T) * 100,
+    n.rmr = length(length(rmr_pred)- sum(is.na(rmr_pred))))
+
+data.rmr.pred %>% 
+  group_by(treatm) %>% 
+  dplyr:::summarise(
+    cv.rmr = sd(exp(rmr_pred), na.rm = T) / mean(exp(rmr_pred), na.rm = T) * 100,
+    n.rmr = length(length(rmr_pred)- sum(is.na(rmr_pred))))
+
+data.fas.pred %>% 
+  group_by( origin, treatm ) %>% 
+  dplyr:::summarise(
+    cv.fas = sd(exp(fas_pred), na.rm = T) / mean(exp(fas_pred), na.rm = T) * 100,
+    n.fas = length(length(fas_pred)- sum(is.na(fas_pred))))
+
+data.fas.pred %>% 
+  group_by(treatm) %>% 
+  dplyr:::summarise(
+    cv.fas = sd(exp(fas_pred), na.rm = T) / mean(exp(fas_pred), na.rm = T) * 100,
+    n.fas = length(length(fas_pred)- sum(is.na(fas_pred))))
+
+data.mmr.pred %>% 
+  group_by(treatm) %>% 
+  dplyr:::summarise(
+    cv.mmr = sd(exp(mmr_pred), na.rm = T) / mean(exp(mmr_pred), na.rm = T) * 100,
+    n.mmr = length(length(mmr_pred)- sum(is.na(mmr_pred))))
+
+data.as.pred %>% 
+  group_by(treatm) %>% 
+  dplyr:::summarise(
+    cv.as = sd(exp(as_pred), na.rm = T) / mean(exp(as_pred), na.rm = T) * 100,
+    n.as = length(length(as_pred)- sum(is.na(as_pred))))
+
+data.bpm.pred %>% 
+  group_by(treatm) %>% 
+  dplyr:::summarise(
+    cv.bpm = sd(exp(bpm_pred), na.rm = T) / mean(exp(bpm_pred), na.rm = T) * 100,
+    n.bpm = length(length(bpm_pred)- sum(is.na(bpm_pred))))
+
+
+# spring fish only 
+summary(data[data$ExperimentID == "spring",])
 
