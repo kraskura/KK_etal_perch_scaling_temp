@@ -290,7 +290,6 @@ summary(heart.scale)
 
 
 
-
 # 3.Mass normalized metabolism, ANOVA/PostHocs and estimated model means ----------
 ## 3.1. LMER reference grid metabolism data with discrete temperature -----------
 # edits made July 9, 2023, size standardise to 65 g, the general average for all experiments
@@ -1059,7 +1058,7 @@ plot.rmr.lmer<-ggplot(data=data.rmr.pred, aes(y=exp(rmr_pred)/BW, x=as.numeric(a
   annotate(geom = "text", hjust = 0, x = 13, y = 5.85, label = expression("origin: p = 8.93e-4"), size = 3.2)+
   scale_y_continuous(limits = c(0,7), breaks = c(seq(1, 8, 1))) +
   theme_classic()
-ggformat(print =T, plot.rmr.lmer, y_title = expression(RMR~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
+ggformat(print =T, plot.rmr.lmer, y_title = expression(RMR~(mgO[2]~min^-1~65~g^-1)), x_title = "Temperature ºC", size_text = 15)
 # plot.rmr.lmer<-plot.rmr.lmer+theme(legend.position = c(0.8, 0.2))
 
 plot.fas.lmer<-ggplot(data=data.fas.pred, aes(y=exp(fas_pred), x=as.numeric(as.character(treatm)), shape = origin, fill = factor(treatm), group=factor(origin), color = factor(treatm)))+
@@ -1112,7 +1111,7 @@ plot.AS.lmer<-ggplot(data=data.as.pred, mapping = aes(y=exp(as_pred)/BW, x=as.nu
   annotate(geom = "text", x = 20, y = 0.09, label = "n = 66", size = 3.2)+
   annotate(geom = "text", x = 22, y = 0.09, label = "n = 27", size = 3.2)+
   scale_y_continuous(limits = c(0,4.1), breaks = c(0.5, 1.5, 2.5, 3.5)) 
-ggformat(plot.AS.lmer, y_title = expression(AAS~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
+ggformat(plot.AS.lmer, y_title = expression(AAS~(mgO[2]~min^-1~65~g^-1)), x_title = "Temperature ºC", size_text = 15)
 
 plot.mmr.lmer<-ggplot(data=data.mmr.pred, aes(y=exp(mmr_pred)/BW, x=as.numeric(as.character(treatm)), fill = factor(treatm),color = factor(treatm)))+
   # geom_line(size=0.2, alpha=0.6)+
@@ -1136,7 +1135,7 @@ plot.mmr.lmer<-ggplot(data=data.mmr.pred, aes(y=exp(mmr_pred)/BW, x=as.numeric(a
   annotate(geom = "text", x = 22, y = 0.2, label = "n = 28", size = 3.2)+
   scale_y_continuous(limits = c(0,10), breaks = c(seq(0,10, 1))) +
   theme_classic()
-ggformat(plot.mmr.lmer, y_title = expression(MMR~(mgO[2]~min^-1~kg^-1)), x_title = "Temperature ºC", size_text = 15)
+ggformat(plot.mmr.lmer, y_title = expression(MMR~(mgO[2]~min^-1~65~g^-1)), x_title = "Temperature ºC", size_text = 15)
 
 
 
@@ -1244,7 +1243,7 @@ p3<-
                                        shape = factor(p)), show.legend = F)+
   geom_line(alpha=1, show.legend = F,size=1,  color = "grey70")+
   geom_line(pred.means.bpm65g,  inherit.aes = F,
-            mapping = aes(y=exp(prediction)/20, x=as.numeric(as.character(treatm)), group= factor(BW)),
+            mapping = aes(y=exp(prediction)/20, x=as.numeric(as.character(treatm)), group = factor(BW)),
             alpha=1, show.legend = F, size=1,  color = "grey70")+
   geom_vline(xintercept = 24, size=0.5, color = "red")+
   geom_point(show.legend = F, alpha = 1, size = 2)+
@@ -1253,7 +1252,7 @@ p3<-
   scale_shape_manual(values = c(22,  24, 23, 25))+
   scale_x_continuous(breaks = c( 12, 16, 20, 22, 24), limits= c(10, 27.5))+
   scale_y_continuous(sec.axis = sec_axis( trans=~.*20,
-                                          name=expression(italic(f)[Hmax]~(beats~min^-1)),
+                                          name=expression(italic(f)[Hmax]~(beats~min^-1~65~g^-1)),
                                           breaks = seq(80,140, 15)),
                      breaks = c(0.5,1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5))+
   # geom_errorbar(pred.means.bpm65g, mapping = aes(ymax = exp(prediction+SE), ymin = exp(prediction-SE)/100, x=treatm),
@@ -1276,7 +1275,7 @@ p3<-
   annotate("text", x = 22.5, y = 5.3, hjust = 1, label = expression(bold(italic(f)[Hmax])), size = 4, parse = T)+
   theme_classic()
 ggformat(p3, x_title = expression(Temperature~(degree*C)),
-         y_title = expression(MR~(mgO[2]~min^-1~kg^-1)), size_text = 15, print = T)
+         y_title = expression(MR~(mgO[2]~min^-1~65~g^-1)), size_text = 15, print = T)
 p3<-p3+theme(plot.margin = margin(-0.5,0.1,0,0, "cm"), 
              axis.title.y = element_text(vjust = -4))
 
