@@ -3,7 +3,7 @@
 **Body size and temperature affect metabolic and cardiac thermal tolerance in fish.**
 
 
-- [x] :exclamation: **Manuscript in review (Oct 2022)**
+Open access article is available at: https://doi.org/10.1038/s41598-023-44574-w
 
 
 *Authors:  Krista Kraskura<sup>1</sup>, Emily A. Hardison, and Erika J. Eliason*
